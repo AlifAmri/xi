@@ -1,0 +1,37 @@
+// Copyright 2018 PT. Qasico Teknologi Indonesia. All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+package unit
+
+import (
+	"git.qasico.com/cuxs/validation"
+	"git.qasico.com/gudang/api/src/auth"
+	"git.qasico.com/gudang/api/src/receiving/model"
+)
+
+type deleteRequest struct {
+	ID int64 `json:"-" valid:"required"`
+
+	ReceivingUnit *model.ReceivingUnit `json:"-"`
+	Session       *auth.SessionData    `json:"-"`
+}
+
+func (cr *deleteRequest) Validate() *validation.Output {
+	o := &validation.Output{Valid: true}
+	var e error
+
+	if cr.ReceivingUnit, e = validReceivingUnit(cr.ID, "draft"); e != nil {
+		o.Failure("id.invalid", errInvalidReceivingUnit)
+	}
+
+	return o
+}
+
+func (cr *deleteRequest) Messages() map[string]string {
+	return map[string]string{}
+}
+
+func (cr *deleteRequest) Save() (e error) {
+	return cr.ReceivingUnit.Delete()
+}

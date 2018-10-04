@@ -1,0 +1,26 @@
+package: git.qasico.com/gudang/api
+import:
+- package: git.qasico.com/cuxs/cache
+- package: git.qasico.com/cuxs/common
+  version: v1.0.5
+  subpackages:
+  - log
+  - now
+- package: git.qasico.com/cuxs/cuxs
+  version: v1.2.1
+  subpackages:
+  - event
+- package: git.qasico.com/cuxs/env
+  version: v1.0.1
+- package: git.qasico.com/cuxs/orm
+  version: v1.0.2
+- package: git.qasico.com/cuxs/validation
+  version: v1.0.1
+- package: github.com/Sirupsen/logrus
+  version: v1.1.0
+- package: github.com/dgrijalva/jwt-go
+  version: ~3.0.0
+- package: github.com/labstack/echo
+  version: v3.2.1
+- package: github.com/tealeg/xlsx
+  version: v1.0.3
