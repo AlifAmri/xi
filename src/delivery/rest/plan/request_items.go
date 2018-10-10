@@ -7,40 +7,38 @@ package plan
 import (
 	"fmt"
 	"git.qasico.com/cuxs/validation"
-	"git.qasico.com/gudang/api/src/receiving/model"
+	"git.qasico.com/gudang/api/src/delivery/model"
 )
 
 type item struct {
 	ID        string  `json:"id"`
 	ItemCode  string  `json:"item_code" valid:"required"`
-	BatchCode string  `json:"batch_code" valid:"required"`
-	UnitCode  string  `json:"unit_code"`
+	BatchCode string  `json:"batch_code"`
 	Quantity  float64 `json:"quantity" valid:"required|gte:1"`
 
-	ReceiptPlanItem *model.ReceiptPlanItem `json:"-"`
+	PreparationPlanItem *model.PreparationPlanItem `json:"-"`
 }
 
 func (rp *item) Validate(index int, o *validation.Output) {
 	var e error
 
 	if rp.ID != "" {
-		if rp.ReceiptPlanItem, e = validReceiptPlanItem(rp.ID); e != nil {
+		if rp.PreparationPlanItem, e = validPreparationPlanItem(rp.ID); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.id.invalid", index), errInvalidReceivingPlan)
 		}
 	}
 }
 
-func (rp *item) Save(r *model.ReceiptPlan) {
-	rpp := &model.ReceiptPlanItem{
+func (rp *item) Save(r *model.PreparationPlan) {
+	rpp := &model.PreparationPlanItem{
 		Plan:      r,
-		UnitCode:  rp.UnitCode,
 		ItemCode:  rp.ItemCode,
 		BatchCode: rp.BatchCode,
 		Quantity:  rp.Quantity,
 	}
 
-	if rp.ReceiptPlanItem != nil {
-		rpp.ID = rp.ReceiptPlanItem.ID
+	if rp.PreparationPlanItem != nil {
+		rpp.ID = rp.PreparationPlanItem.ID
 	}
 
 	rpp.Save()

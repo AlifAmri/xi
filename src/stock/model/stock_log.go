@@ -24,7 +24,7 @@ type StockLog struct {
 	Item       *model.Item      `orm:"column(item_id);null;rel(fk)" json:"item,omitempty"`
 	Batch      *model.ItemBatch `orm:"column(batch_id);null;rel(fk)" json:"batch,omitempty"`
 	RefType    string           `orm:"column(ref_type);size(45);null" json:"ref_type"`
-	RefID      uint64           `orm:"column(ref_id);null" json:"ref_id"`
+	RefID      uint64           `orm:"column(ref_id);null" json:"-"`
 	RefCode    string           `orm:"column(ref_code);null" json:"ref_code"`
 	Quantity   float64          `orm:"column(quantity);null;digits(20);decimals(2)" json:"quantity"`
 	RecordedAt time.Time        `orm:"column(recorded_at);type(timestamp)" json:"recorded_at"`
@@ -40,6 +40,7 @@ func (m *StockLog) MarshalJSON() ([]byte, error) {
 		StockUnitID string `json:"stock_unit_id"`
 		ItemID      string `json:"item_id"`
 		BatchID     string `json:"batch_id"`
+		RefID       string `json:"ref_id"`
 		*Alias
 	}{
 		ID:    common.Encrypt(m.ID),
@@ -60,6 +61,10 @@ func (m *StockLog) MarshalJSON() ([]byte, error) {
 		alias.ItemID = common.Encrypt(m.Item.ID)
 	} else {
 		alias.Item = nil
+	}
+
+	if m.RefID > 0 {
+		alias.RefID = common.Encrypt(m.RefID)
 	}
 
 	// Encrypt alias.BatchID when m.Batch not nill

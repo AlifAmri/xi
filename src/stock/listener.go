@@ -6,6 +6,7 @@ package stock
 
 import (
 	"git.qasico.com/cuxs/cuxs/event"
+	model3 "git.qasico.com/gudang/api/src/delivery/model"
 	model2 "git.qasico.com/gudang/api/src/receiving/model"
 	"git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/stock/services/stock"
@@ -18,6 +19,7 @@ func init() {
 	listenStockopnameFinished()
 	listenStockMovementFinished()
 	listenPutaway()
+	listenStockOut()
 }
 
 func listenStockopnameCommited() {
@@ -145,6 +147,37 @@ func listenPutaway() {
 			}
 
 			mv.Save()
+		}
+	}()
+}
+
+func listenStockOut() {
+	c := make(chan interface{})
+	event.Listen("preparation_unit::commited", c)
+
+	go func() {
+		for {
+			data := <-c
+			so := data.(*model3.PreparationUnit)
+
+			so.Preparation.Read()
+			so.Unit.Read()
+
+			lm := &stock.LogMaker{
+				Doc:       so.Preparation,
+				Item:      so.Unit.Item,
+				StockUnit: so.Unit,
+				Batch:     so.Unit.Batch,
+				Quantity:  -1 * so.Quantity,
+			}
+
+			if _, e := stock.CreateLog(lm); e == nil {
+				so.Unit.Status = "out"
+				so.Unit.Storage = nil
+				so.Unit.Save("status", "storage_id")
+			}
+
+			storage.Recalculate()
 		}
 	}()
 }

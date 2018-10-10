@@ -608,7 +608,6 @@ CREATE TABLE `receiving` (
     ON DELETE SET NULL
     ON UPDATE NO ACTION);
 
-
 CREATE TABLE `receiving_document` (
   `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `receiving_id` bigint(11) UNSIGNED NOT NULL,
@@ -727,5 +726,232 @@ CREATE TABLE `receiving_actual` (
   CONSTRAINT `fk_receiving_actual_4`
     FOREIGN KEY (`unit_id`)
     REFERENCES `stock_unit` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation_plan` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `partner_id` BIGINT(11) UNSIGNED NULL,
+  `status` ENUM('draft', 'pending', 'active', 'finish') NOT NULL DEFAULT 'draft',
+  `document_code` VARCHAR(45) NOT NULL,
+  `total_quantity` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `note` TINYTEXT NULL,
+  `approved_by` BIGINT(11) UNSIGNED NULL,
+  `created_by` BIGINT(11) UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `shipped_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_preparation_plan_1_idx` (`partner_id` ASC),
+  INDEX `fk_preparation_plan_2_idx` (`approved_by` ASC),
+  INDEX `fk_preparation_plan_3_idx` (`created_by` ASC),
+  CONSTRAINT `fk_preparation_plan_1`
+    FOREIGN KEY (`partner_id`)
+    REFERENCES `partnership` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_plan_2`
+    FOREIGN KEY (`approved_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_plan_3`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation_plan_item` (
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
+  `plan_id` bigint(11) unsigned NOT NULL,
+  `item_code` varchar(100) NOT NULL,
+  `batch_code` varchar(100) DEFAULT NULL,
+  `quantity` decimal(12,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (`id`),
+  KEY `fk_preparation_plan_item_1_idx` (`plan_id`),
+  CONSTRAINT `fk_preparation_plan_item_1` FOREIGN KEY (`plan_id`) REFERENCES `preparation_plan` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION);
+
+CREATE TABLE `delivery_order` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `vehicle_id` BIGINT(11) UNSIGNED NOT NULL,
+  `partner_id` BIGINT(11) UNSIGNED NULL,
+  `code` VARCHAR(45) NULL,
+  `number_container` VARCHAR(145) NULL,
+  `number_seal` VARCHAR(145) NULL,
+  `status` ENUM('active', 'finish') NOT NULL DEFAULT 'active',
+  `note` TINYTEXT NULL,
+  `created_by` BIGINT(11) UNSIGNED NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_delivery_order_1_idx` (`vehicle_id` ASC),
+  INDEX `fk_delivery_order_2_idx` (`partner_id` ASC),
+  INDEX `fk_delivery_order_3_idx` (`created_by` ASC),
+  CONSTRAINT `fk_delivery_order_1`
+    FOREIGN KEY (`vehicle_id`)
+    REFERENCES `incoming_vehicle` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_delivery_order_2`
+    FOREIGN KEY (`partner_id`)
+    REFERENCES `partnership` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_delivery_order_3`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `plan_id` BIGINT(11) UNSIGNED NULL,
+  `partner_id` BIGINT(11) UNSIGNED NULL,
+  `supervisor_id` BIGINT(11) UNSIGNED NULL,
+  `location_id` BIGINT(11) UNSIGNED NULL,
+  `delivery_order_id` BIGINT(11) UNSIGNED NULL,
+  `code` VARCHAR(45) NULL,
+  `status` ENUM('draft','active', 'finish') NOT NULL DEFAULT 'draft',
+  `document_code` VARCHAR(45) NULL,
+  `document_file` TINYTEXT NULL,
+  `total_quantity_plan` DECIMAL(12,2) NULL,
+  `total_quantity_actual` DECIMAL(12,2) NULL,
+  `note` TINYTEXT NULL,
+  `shipped_at` TIMESTAMP NULL,
+  `approved_by` BIGINT(11) UNSIGNED NULL,
+  `created_by` BIGINT(11) UNSIGNED NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `started_at` TIMESTAMP NULL,
+  `finished_at` TIMESTAMP NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_preparation_1_idx` (`partner_id` ASC),
+  INDEX `fk_preparation_2_idx` (`supervisor_id` ASC),
+  INDEX `fk_preparation_3_idx` (`approved_by` ASC),
+  INDEX `fk_preparation_4_idx` (`created_by` ASC),
+  INDEX `fk_preparation_5_idx` (`plan_id` ASC),
+  INDEX `fk_preparation_6_idx` (`location_id` ASC),
+  INDEX `fk_preparation_7_idx` (`delivery_order_id` ASC),
+  CONSTRAINT `fk_preparation_1`
+    FOREIGN KEY (`partner_id`)
+    REFERENCES `partnership` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_2`
+    FOREIGN KEY (`supervisor_id`)
+    REFERENCES `user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_3`
+    FOREIGN KEY (`approved_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_4`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_5`
+    FOREIGN KEY (`plan_id`)
+    REFERENCES `preparation_plan` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_6`
+    FOREIGN KEY (`location_id`)
+    REFERENCES `warehouse_location` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_7`
+    FOREIGN KEY (`delivery_order_id`)
+    REFERENCES `delivery_order` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation_document` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `preparation_id` bigint(11) UNSIGNED NOT NULL,
+  `item_id` BIGINT(11) UNSIGNED NOT NULL,
+  `batch_id` BIGINT(11) UNSIGNED DEFAULT NULL,
+  `quantity` decimal(12,2) NOT NULL DEFAULT '0.00',
+  PRIMARY KEY (`id`),
+  KEY `fk_preparation_document_1_idx` (`preparation_id`),
+  KEY `fk_preparation_document_2_idx` (`item_id`),
+  KEY `fk_preparation_document_3_idx` (`batch_id`),
+  CONSTRAINT `fk_preparation_document_1` FOREIGN KEY (`preparation_id`) REFERENCES `preparation` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_document_2` FOREIGN KEY (`item_id`) REFERENCES `item` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_document_3` FOREIGN KEY (`batch_id`) REFERENCES `item_batch` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation_unit` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `preparation_id` BIGINT(11) UNSIGNED NOT NULL,
+  `unit_id` BIGINT(11) UNSIGNED NULL,
+  `quantity` DECIMAL(12,2) NOT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 0,
+  `location_picking` BIGINT(11) UNSIGNED NULL,
+  `checked_by` BIGINT(11) UNSIGNED NULL,
+  `created_by` BIGINT(11) UNSIGNED NULL,
+  `approved_by` BIGINT(11) UNSIGNED NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_preparation_unit_1_idx` (`preparation_id` ASC),
+  INDEX `fk_preparation_unit_2_idx` (`unit_id` ASC),
+  INDEX `fk_preparation_unit_3_idx` (`checked_by` ASC),
+  INDEX `fk_preparation_unit_4_idx` (`created_by` ASC),
+  INDEX `fk_preparation_unit_5_idx` (`approved_by` ASC),
+  INDEX `fk_preparation_unit_6_idx` (`location_picking` ASC),
+  CONSTRAINT `fk_preparation_unit_1`
+    FOREIGN KEY (`preparation_id`)
+    REFERENCES `preparation` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_unit_2`
+    FOREIGN KEY (`unit_id`)
+    REFERENCES `stock_unit` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_unit_3`
+    FOREIGN KEY (`checked_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_unit_4`
+    FOREIGN KEY (`created_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_unit_5`
+    FOREIGN KEY (`approved_by`)
+    REFERENCES `user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_unit_6`
+    FOREIGN KEY (`location_picking`)
+    REFERENCES `warehouse_location` (`id`)
+    ON DELETE SET NULL
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `preparation_actual` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `preparation_id` BIGINT(11) UNSIGNED NOT NULL,
+  `item_id` BIGINT(11) UNSIGNED NOT NULL,
+  `batch_id` BIGINT(11) UNSIGNED NULL,
+  `quantity_planned` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `quantity_prepared` DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `note` TINYTEXT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_preparation_actual_1_idx` (`preparation_id` ASC),
+  INDEX `fk_preparation_actual_2_idx` (`item_id` ASC),
+  INDEX `fk_preparation_actual_3_idx` (`batch_id` ASC),
+  CONSTRAINT `fk_preparation_actual_1`
+    FOREIGN KEY (`preparation_id`)
+    REFERENCES `preparation` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_actual_2`
+    FOREIGN KEY (`item_id`)
+    REFERENCES `item` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_preparation_actual_3`
+    FOREIGN KEY (`batch_id`)
+    REFERENCES `item_batch` (`id`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION);

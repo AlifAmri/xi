@@ -18,7 +18,7 @@ type item struct {
 	ItemCode  string  `json:"item_code" valid:"required"`
 	BatchCode string  `json:"batch_code"`
 	UnitCode  string  `json:"unit_code"`
-	Quantity  float64 `json:"quantity" valid:"required,min:1"`
+	Quantity  float64 `json:"quantity" valid:"required|gte:1"`
 
 	Item              *ModelInventory.Item      `json:"-"`
 	ItemBatch         *ModelInventory.ItemBatch `json:"-"`

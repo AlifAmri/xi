@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package unit
+package plan
 
 import (
 	"git.qasico.com/cuxs/cuxs"
@@ -16,15 +16,16 @@ type Handler struct{}
 // URLMapping declare endpoint with handler function.
 func (h *Handler) URLMapping(r *echo.Group) {
 	r.GET("", h.get, auth.Authorized(""))
+	r.POST("", h.create, auth.Authorized(""))
 	r.GET("/:id", h.detail, auth.Authorized(""))
-	r.GET("/:id/moving", h.moving, auth.Authorized(""))
-	r.GET("/:id/prepare", h.prepare, auth.Authorized(""))
-	r.GET("/:id/receiving", h.receiving, auth.Authorized(""))
-	r.GET("/:id/opname", h.opname, auth.Authorized(""))
+	r.PUT("/:id", h.update, auth.Authorized(""))
+	r.PUT("/:id/delete", h.delete, auth.Authorized(""))
+	r.PUT("/:id/publish", h.publish, auth.Authorized(""))
 }
 
 func (h *Handler) get(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
+
 	data, total, e := Get(ctx.RequestQuery())
 	if e == nil {
 		ctx.Data(data, total)
@@ -46,56 +47,58 @@ func (h *Handler) detail(c echo.Context) (e error) {
 	return ctx.Serve(e)
 }
 
-func (h *Handler) moving(c echo.Context) (e error) {
+func (h *Handler) create(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
-	var id int64
-	if id, e = ctx.Decrypt("id"); e == nil {
-		data, total, e := historyMovement(id, ctx.RequestQuery())
-		if e == nil {
-			ctx.Data(data, total)
+	var cr createRequest
+	if cr.Session, e = auth.RequestSession(ctx); e == nil {
+		if e = ctx.Bind(&cr); e == nil {
+			ctx.ResponseData, e = cr.Save()
 		}
 	}
 
 	return ctx.Serve(e)
 }
 
-func (h *Handler) prepare(c echo.Context) (e error) {
+func (h *Handler) update(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
-	var id int64
-	if id, e = ctx.Decrypt("id"); e == nil {
-		data, total, e := historyPreparation(id, ctx.RequestQuery())
-		if e == nil {
-			ctx.Data(data, total)
+	var ur updateRequest
+	if ur.ID, e = ctx.Decrypt("id"); e == nil {
+		if ur.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&ur); e == nil {
+				ctx.ResponseData, e = ur.Save()
+			}
 		}
 	}
 
 	return ctx.Serve(e)
 }
 
-func (h *Handler) receiving(c echo.Context) (e error) {
+func (h *Handler) delete(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
-	var id int64
-	if id, e = ctx.Decrypt("id"); e == nil {
-		data, total, e := historyReceiving(id, ctx.RequestQuery())
-		if e == nil {
-			ctx.Data(data, total)
+	var ar deleteRequest
+	if ar.ID, e = ctx.Decrypt("id"); e == nil {
+		if ar.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&ar); e == nil {
+				e = ar.Save()
+			}
 		}
 	}
 
 	return ctx.Serve(e)
 }
 
-func (h *Handler) opname(c echo.Context) (e error) {
+func (h *Handler) publish(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
-	var id int64
-	if id, e = ctx.Decrypt("id"); e == nil {
-		data, total, e := historyStockopname(id, ctx.RequestQuery())
-		if e == nil {
-			ctx.Data(data, total)
+	var ar publishRequest
+	if ar.ID, e = ctx.Decrypt("id"); e == nil {
+		if ar.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&ar); e == nil {
+				e = ar.Save()
+			}
 		}
 	}
 

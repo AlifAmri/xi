@@ -6,6 +6,7 @@ package stock
 
 import (
 	"git.qasico.com/cuxs/common/log"
+	model3 "git.qasico.com/gudang/api/src/delivery/model"
 	model2 "git.qasico.com/gudang/api/src/receiving/model"
 	"time"
 
@@ -44,6 +45,10 @@ func CreateLog(lm *LogMaker) (sl *model.StockLog, e error) {
 		refCode = d.DocumentCode
 		refID = uint64(d.ID)
 		refType = "receiving"
+	} else if d, ok := lm.Doc.(*model3.Preparation); ok {
+		refCode = d.DocumentCode
+		refID = uint64(d.ID)
+		refType = "preparation"
 	}
 
 	sl = &model.StockLog{

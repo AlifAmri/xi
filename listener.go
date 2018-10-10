@@ -5,6 +5,7 @@
 package main
 
 import (
+	_ "git.qasico.com/gudang/api/src/delivery"
 	_ "git.qasico.com/gudang/api/src/receiving"
 	_ "git.qasico.com/gudang/api/src/stock"
 	_ "git.qasico.com/gudang/api/src/vehicle"
