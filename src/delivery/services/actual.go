@@ -74,3 +74,15 @@ func CreateActual(r *model.Preparation) {
 		CalculateActualFromUnit(u)
 	}
 }
+
+func CalculateQuantity(r *model.Preparation) {
+	var actual, planned float64
+	o := orm.NewOrm()
+	o.Raw("SELECT sum(quantity_prepared) as quantity FROM preparation_actual where preparation_id = ?;", r.ID).QueryRow(&actual)
+	o.Raw("SELECT sum(quantity_planned) as quantity FROM preparation_actual where preparation_id = ?;", r.ID).QueryRow(&planned)
+
+	r.TotalQuantityActual = actual
+	r.TotalQuantityPlan = planned
+
+	r.Save("total_quantity_actual", "total_quantity_plan")
+}

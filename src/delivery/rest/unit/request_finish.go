@@ -43,6 +43,7 @@ func (cr *finishRequest) Save() (e error) {
 	if e = cr.PreparationUnit.Save("is_active", "approved_by", "checked_by"); e == nil {
 		go event.Call("preparation_unit::commited", cr.PreparationUnit)
 		go services.CalculateActualFromUnit(cr.PreparationUnit)
+		go services.CalculateQuantity(cr.PreparationUnit.Preparation)
 	}
 
 	return

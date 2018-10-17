@@ -21,7 +21,9 @@ var (
 )
 
 type area struct {
-	AreaID string `json:"id"`
+	AreaID          string `json:"id"`
+	FromLocationID  string `json:"form_location_id"`
+	UntilLocationID string `json:"until_location_id"`
 }
 
 func validName(name string, exclude int64) bool {
