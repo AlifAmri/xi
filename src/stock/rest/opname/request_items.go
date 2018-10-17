@@ -52,7 +52,11 @@ func (oi *opnameItem) Validate(index int, o *validation.Output) {
 		}
 
 		if oi.BatchCode != "" && oi.Item != nil && oi.Item.ID > 0 {
-			oi.ItemBatch = inventory.GetBatch(oi.Item.ID, oi.BatchCode)
+			if oi.BatchCode, e = validBatchCode(oi.BatchCode); e == nil {
+				oi.ItemBatch = inventory.GetBatch(oi.Item.ID, oi.BatchCode)
+			} else {
+				o.Failure(fmt.Sprintf("items.%d.batch_code.invalid", index), errInvalidBatchCode)
+			}
 		}
 
 		if oi.UnitCode != "" && !validUnitCode(oi.UnitCode) {

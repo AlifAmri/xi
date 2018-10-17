@@ -6,6 +6,7 @@ package opname
 
 import (
 	"errors"
+	"fmt"
 
 	iModel "git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/model"
@@ -20,7 +21,7 @@ var (
 	errRequiredItems          = "Item harus diisi"
 	errRequiredItem           = "Item harus diisi"
 	errRequiredLocation       = "Lokasi harus diisi"
-	errRequiredBatch          = "Item batch harus diisi"
+	errRequiredBatch          = "Kode batch harus diisi"
 	errRequiredQuantity       = "Quantity harus diisi"
 	errRequiredContainerNum   = "No. container harus diisi"
 	errInvalidStockOpname     = "Dokumen tidak valid"
@@ -29,6 +30,7 @@ var (
 	errInvalidUnit            = "Kode unit tidak valid"
 	errInvalidStockopnameItem = "Item tidak valid"
 	errInvalidContainer       = "Container tidak valid"
+	errInvalidBatchCode       = "Format kode batch tidak valid"
 	errAlreadyFinished        = "Dokumen telah selesai"
 )
 
@@ -61,6 +63,20 @@ func validUnitCode(code string) bool {
 	orm.NewOrm().Raw("SELECT count(*) FROM stock_unit where code = ?", code).QueryRow(&total)
 
 	return total == 0
+}
+
+func validBatchCode(code string) (c string, e error) {
+	c = code
+
+	if len(c) == 3 {
+		c = fmt.Sprintf("%s%s", "0", code)
+	}
+
+	if len(c) != 4 {
+		e = errors.New("wrong format")
+	}
+
+	return
 }
 
 func validLocation(ide string) (l *warehouse.Location, e error) {

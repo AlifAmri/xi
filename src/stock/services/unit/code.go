@@ -32,7 +32,7 @@ func lastCode() int {
 
 	var lastCode string
 	var lastNumber int
-	if e := o.Raw("select code from stock_unit where code like ? order by code desc", "B%").QueryRow(&lastCode); e == nil {
+	if e := o.Raw("select code from stock_unit where code like ? and code not like ? order by code desc", "B%", "%-%").QueryRow(&lastCode); e == nil {
 		number := regexp.MustCompile(`[\d]+$`).FindString(lastCode)
 		lastNumber, _ = strconv.Atoi(number)
 	}

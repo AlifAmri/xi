@@ -15,7 +15,6 @@ import (
 
 type updateRequest struct {
 	ID              int64  `json:"-" valid:"required"`
-	Purpose         string `json:"purpose" valid:"required"`
 	VehicleType     string `json:"vehicle_type" valid:"required"`
 	VehicleNumber   string `json:"vehicle_number" valid:"required"`
 	Driver          string `json:"driver" valid:"required"`
@@ -51,7 +50,6 @@ func (ur *updateRequest) Validate() *validation.Output {
 
 func (ur *updateRequest) Messages() map[string]string {
 	return map[string]string{
-		"purpose.required":        errRequiredPurpose,
 		"vehicle_type.required":   errRequiredVehicleType,
 		"vehicle_number.required": errRequiredVehicleNumber,
 		"driver.required":         errRequiredDriver,
@@ -62,7 +60,6 @@ func (ur *updateRequest) Messages() map[string]string {
 func (ur *updateRequest) Save() (u *model.IncomingVehicle, e error) {
 	u = &model.IncomingVehicle{
 		ID:              ur.ID,
-		Purpose:         ur.Purpose,
 		VehicleType:     ur.VehicleType,
 		VehicleNumber:   ur.VehicleNumber,
 		Driver:          ur.Driver,
@@ -76,7 +73,7 @@ func (ur *updateRequest) Save() (u *model.IncomingVehicle, e error) {
 		Notes:           ur.Notes,
 	}
 
-	fields := common.Fields(u, "in_at", "status")
+	fields := common.Fields(u, "in_at", "status", "purpose")
 	e = u.Save(fields...)
 
 	return
