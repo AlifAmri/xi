@@ -24,6 +24,7 @@ func CalculateActualFromUnit(ru *model.PreparationUnit) {
 		}
 	}
 
+	ru.Unit.Read()
 	if !updated {
 		for _, d := range ru.Preparation.Actuals {
 			if !updated && d.Item.ID == ru.Unit.Item.ID {
