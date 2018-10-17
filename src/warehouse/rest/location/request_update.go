@@ -21,7 +21,7 @@ type updateRequest struct {
 	CordY           int    `json:"cord_y" valid:"required"`
 	CordW           int    `json:"cord_w" valid:"required"`
 	CordH           int    `json:"cord_h" valid:"required"`
-	StorageCapacity int    `json:"storage_capacity"`
+	StorageCapacity int    `json:"storage_capacity" valid:"required|gte:0"`
 
 	Session  *auth.SessionData   `json:"-"`
 	Location *warehouse.Location `json:"-"`

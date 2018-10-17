@@ -20,7 +20,7 @@ type createRequest struct {
 	CordY           int    `json:"cord_y" valid:"required"`
 	CordW           int    `json:"cord_w" valid:"required"`
 	CordH           int    `json:"cord_h" valid:"required"`
-	StorageCapacity int    `json:"storage_capacity"`
+	StorageCapacity int    `json:"storage_capacity" valid:"required|gte:0"`
 
 	Area    *warehouse.Area   `json:"-"`
 	Session *auth.SessionData `json:"-"`
@@ -45,13 +45,14 @@ func (cr *createRequest) Validate() *validation.Output {
 
 func (cr *createRequest) Messages() map[string]string {
 	return map[string]string{
-		"area_id.required": errRequiredArea,
-		"code.required":    errRequiredCode,
-		"name.required":    errRequiredName,
-		"cord_x.required":  errRequiredCordX,
-		"cord_y.required":  errRequiredCordY,
-		"cord_w.required":  errRequiredCordW,
-		"cord_h.required":  errRequiredCordH,
+		"area_id.required":          errRequiredArea,
+		"code.required":             errRequiredCode,
+		"name.required":             errRequiredName,
+		"cord_x.required":           errRequiredCordX,
+		"cord_y.required":           errRequiredCordY,
+		"cord_w.required":           errRequiredCordW,
+		"cord_h.required":           errRequiredCordH,
+		"storage_capacity.required": errRequiredCapacity,
 	}
 }
 
