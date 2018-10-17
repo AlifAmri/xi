@@ -10,6 +10,7 @@ import (
 )
 
 func CalculateActualFromUnit(ru *model.PreparationUnit) {
+	ru.Unit.Read()
 	o := orm.NewOrm()
 
 	o.LoadRelated(ru.Preparation, "Actuals", 1)
@@ -24,7 +25,6 @@ func CalculateActualFromUnit(ru *model.PreparationUnit) {
 		}
 	}
 
-	ru.Unit.Read()
 	if !updated {
 		for _, d := range ru.Preparation.Actuals {
 			if !updated && d.Item.ID == ru.Unit.Item.ID {
