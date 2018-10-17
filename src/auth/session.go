@@ -56,7 +56,6 @@ func RequestSession(ctx *cuxs.Context) (sd *SessionData, e error) {
 		c := u.(*jwt.Token).Claims.(jwt.MapClaims)
 		uid := int64(c["id"].(float64))
 		if e := cache.Get(fmt.Sprintf("session_%d", uid), &sd); e != nil {
-			fmt.Println(e, "==============")
 			if u, e := Service.GetByID(uid); e == nil {
 				token := ctx.Get("user").(*jwt.Token).Raw
 				sd = StartSession(u, token)

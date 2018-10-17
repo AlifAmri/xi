@@ -1,14 +1,34 @@
 SET FOREIGN_KEY_CHECKS = 0;
+
 INSERT INTO `privilege` (`id`,`name`,`action`,`is_active`,`note`) VALUES
-(1,'usergroup','create',1,'Dapat menambahkan usergroup baru beserta privilege nya'),
-(2,'usergroup','update',1,'Dapat memperbaharui usergroup yang ada beserta privilege nya'),
-(3,'usergroup','delete',1,'Dapat menghapus usergroup yang ada '),
-(4,'usergroup','view',1,'Dapat melihat data usergroup'),
-(5,'user','create',1,'Dapat mendaftarkan user baru,'),
-(6,'user','update',1,'Dapat memperbaharui user yang ada'),
-(7,'user','privilege',1,'Dapat melihat dan memperbaharui privilege user yang ada'),
-(8,'user','activate',1,'Dapat mengaktif/non-aktifkan user yang ada'),
-(9,'user','view',1,'Dapat melihat data user yang ada beserta privilege nya');
+('1', 'vehicle', 'list', '1', 'Dapat melihat data kedatangan kendaraan'),
+('2', 'vehicle', 'manage', '1', 'Dapat mengelola data kedatangan kendaraan'),
+('3', 'receiving', 'list', '1', 'Dapat melihat data receiving'),
+('4', 'receiving', 'manage', '1', 'Dapat mengelola data receiving'),
+('5', 'receiving', 'process', '1', 'Dapat melakukan proses receiving'),
+('6', 'receiving_plan', 'list', '1', 'Dapat melihat data rencana penerimaan'),
+('7', 'receiving_plan', 'manage', '1', 'Dapat mengelola rencana penerimaan'),
+('8', 'preparation', 'list', '1', 'Dapat melihat data preparation'),
+('9', 'preparation', 'manage', '1', 'Dapat mengelola data preparation'),
+('10', 'preparation', 'process', '1', 'Dapat melakukan proses preparation'),
+('11', 'preparation_plan', 'list', '1', 'Dapat melihat data rencana pengiriman'),
+('12', 'preparation_plan', 'manage', '1', 'Dapat mengelola rencana pengiriman'),
+('13', 'delivery_order', 'list', '1', 'Dapat melihat surat jalan'),
+('14', 'delivery_order', 'manage', '1', 'Dapat mengelola data surat jalan'),
+('15', 'movement', 'list', '1', 'Dapat melihat data movement'),
+('16', 'movement', 'manage', '1', 'Dapat mengelola data movement'),
+('17', 'movement', 'process', '1', 'Dapat melakukan proses movement'),
+('18', 'inventory', 'show', '1', 'Dapat melihat data inventory'),
+('19', 'stock_opname', 'list', '1', 'Dapat melihat stockopname'),
+('20', 'stock_opname', 'manage', '1', 'Dapat mengelola stock opname'),
+('21', 'report', 'show', '1', 'Dapat melihat report'),
+('22', 'map', 'show', '1', 'Dapat melihat map warehouse'),
+('23', 'file_manager', 'show', '1', 'Dapat melihat file manager'),
+('24', 'setting', 'application', '1', 'Dapat mengkonfigurasi aplikasi'),
+('25', 'setting', 'partnership', '1', 'Dapat mengelola master data partnership'),
+('26', 'setting', 'inventory', '1', 'Dapat mengelola master data inventory'),
+('27', 'setting', 'warehouse', '1', 'Dapat mengkonfigurasi warehouse'),
+('28', 'setting', 'user', '1', 'Dapat mengelola user pada aplikasi');
 
 INSERT INTO `user` (`id`, `username`, `password`, `name`, `is_active`, `is_superuser`) VALUES
 ('1', 'su', '$2a$10$E4YuDqPaPAbMfNKl75Pm7uifHhZxbDyVz0kFIQVv8ZFXVa7NnFRu2', 'Super User', '1', '1');
