@@ -11,12 +11,12 @@ import (
 )
 
 type createRequest struct {
-	Name      string `json:"name" valid:"required"`
-	Type      string `json:"type" valid:"required"`
-	TypeValue string `json:"type_value"`
-	IsPrimary int8   `json:"is_primary"`
-	Note      string `json:"note"`
-	Areas     []area `json:"areas" valid:"required"`
+	Name      string  `json:"name" valid:"required"`
+	Type      string  `json:"type" valid:"required"`
+	TypeValue string  `json:"type_value"`
+	IsPrimary int8    `json:"is_primary"`
+	Note      string  `json:"note"`
+	Items     []*item `json:"items" valid:"required"`
 
 	Session *auth.SessionData `json:"-"`
 }
@@ -32,6 +32,12 @@ func (cr *createRequest) Validate() *validation.Output {
 		o.Failure("type_value.required", errRequiredValue)
 	}
 
+	if len(cr.Items) > 0 {
+		for i, item := range cr.Items {
+			item.Validate(i, o, 0)
+		}
+	}
+
 	return o
 }
 
@@ -40,7 +46,7 @@ func (cr *createRequest) Messages() map[string]string {
 		"name.required":       errRequiredName,
 		"type.required":       errRequiredType,
 		"type_value.required": errRequiredValue,
-		"areas.required":      errRequiredArea,
+		"items.required":      errRequiredItem,
 	}
 }
 
@@ -55,7 +61,9 @@ func (cr *createRequest) Save() (u *model.StorageGroup, e error) {
 	}
 
 	if e = u.Save(); e == nil {
-		createAreas(u, cr.Areas, false)
+		for _, item := range cr.Items {
+			item.Save(u)
+		}
 	}
 
 	return

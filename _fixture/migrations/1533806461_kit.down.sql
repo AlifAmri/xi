@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS `item_attribute`;
 DROP TABLE IF EXISTS `item_batch`;
 DROP TABLE IF EXISTS `storage_group`;
 DROP TABLE IF EXISTS `storage_group_area`;
+DROP TABLE IF EXISTS `storage_group_location`;
 DROP TABLE IF EXISTS `incoming_vehicle`;
 DROP TABLE IF EXISTS `stock_storage`;
 DROP TABLE IF EXISTS `stock_unit`;

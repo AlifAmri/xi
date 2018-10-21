@@ -63,10 +63,6 @@ func (oi *opnameItem) Validate(index int, o *validation.Output) {
 			o.Failure(fmt.Sprintf("items.%d.unit_id.invalid", index), errInvalidUnit)
 		}
 
-		if oi.Quantity == 0 {
-			o.Failure(fmt.Sprintf("items.%d.quantity.invalid", index), errRequiredQuantity)
-		}
-
 		// kalau type item is_batch nya true, maka stockopname
 		// item ini memerlukan batch
 		if oi.Item != nil && oi.Item.ID > 0 && oi.Item.Type.IsBatch == int8(1) && oi.ItemBatch == nil {
@@ -76,6 +72,10 @@ func (oi *opnameItem) Validate(index int, o *validation.Output) {
 		if oi.StockUnit, e = validUnit(oi.UnitID); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.unit_id.invalid", index), errInvalidUnit)
 		}
+	}
+
+	if oi.Quantity == 0 {
+		o.Failure(fmt.Sprintf("items.%d.quantity.invalid", index), errRequiredQuantity)
 	}
 
 	if oi.ContainerID != "" {

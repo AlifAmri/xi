@@ -22,9 +22,7 @@ func Show(id int64) (ug *model.StorageGroup, err error) {
 			o.Raw("select * from item_group where name = ?", ug.TypeValue).QueryRow(&ug.ItemGroup)
 		}
 
-		o.Raw("SELECT p.id as identity, p.*, (pu.id IS NOT NULL) AS is_selected FROM warehouse_area p "+
-			"left join storage_group_area pu on pu.warehouse_area_id = p.id and pu.storage_group_id = ? "+
-			"where p.is_active = 1;", ug.ID).QueryRows(&ug.Areas)
+		o.LoadRelated(ug, "Areas")
 	}
 
 	return
@@ -46,9 +44,7 @@ func Get(rq *orm.RequestQuery) (m *[]*model.StorageGroup, total int64, err error
 	if _, err = q.All(&mx, rq.Fields...); err == nil {
 
 		for _, ig := range mx {
-			o.Raw("SELECT p.id as identity, p.*, (pu.id IS NOT NULL) AS is_selected FROM warehouse_area p "+
-				"inner join storage_group_area pu on pu.warehouse_area_id = p.id and pu.storage_group_id = ? "+
-				"where p.is_active = 1;", ig.ID).QueryRows(&ig.Areas)
+			o.LoadRelated(ig, "Areas", 1)
 		}
 
 		return &mx, total, nil

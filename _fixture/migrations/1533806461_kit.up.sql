@@ -270,9 +270,13 @@ CREATE TABLE `storage_group_area` (
   `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `storage_group_id` BIGINT(11) UNSIGNED NOT NULL,
   `warehouse_area_id` BIGINT(11) UNSIGNED NOT NULL,
+  `location_from_id` BIGINT(11) UNSIGNED NOT NULL,
+  `location_end_id` BIGINT(11) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_storage_group_area_1_idx` (`storage_group_id` ASC),
   INDEX `fk_storage_group_area_2_idx` (`warehouse_area_id` ASC),
+  INDEX `fk_storage_group_area_3_idx` (`location_from_id` ASC),
+  INDEX `fk_storage_group_area_4_idx` (`location_end_id` ASC),
   CONSTRAINT `fk_storage_group_area_1`
     FOREIGN KEY (`storage_group_id`)
     REFERENCES `storage_group` (`id`)
@@ -281,6 +285,34 @@ CREATE TABLE `storage_group_area` (
   CONSTRAINT `fk_storage_group_area_2`
     FOREIGN KEY (`warehouse_area_id`)
     REFERENCES `warehouse_area` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_storage_group_area_3`
+    FOREIGN KEY (`location_from_id`)
+    REFERENCES `warehouse_location` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_storage_group_area_4`
+    FOREIGN KEY (`location_end_id`)
+    REFERENCES `warehouse_location` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `storage_group_location` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `storage_group_id` BIGINT(11) UNSIGNED NOT NULL,
+  `warehouse_location_id` BIGINT(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_storage_group_location_1_idx` (`storage_group_id` ASC),
+  INDEX `fk_storage_group_location_2_idx` (`warehouse_location_id` ASC),
+  CONSTRAINT `fk_storage_group_location_1`
+    FOREIGN KEY (`storage_group_id`)
+    REFERENCES `storage_group` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_storage_group_location_2`
+    FOREIGN KEY (`warehouse_location_id`)
+    REFERENCES `warehouse_location` (`id`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION);
 

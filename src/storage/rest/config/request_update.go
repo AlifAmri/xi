@@ -6,19 +6,20 @@ package config
 
 import (
 	"git.qasico.com/cuxs/common"
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/storage/model"
 )
 
 type updateRequest struct {
-	ID        int64  `json:"-" valid:"required"`
-	Name      string `json:"name" valid:"required"`
-	Type      string `json:"type" valid:"required"`
-	TypeValue string `json:"type_value" valid:"required"`
-	IsPrimary int8   `json:"is_primary"`
-	Note      string `json:"note"`
-	Areas     []area `json:"areas" valid:"required"`
+	ID        int64   `json:"-" valid:"required"`
+	Name      string  `json:"name" valid:"required"`
+	Type      string  `json:"type" valid:"required"`
+	TypeValue string  `json:"type_value"`
+	IsPrimary int8    `json:"is_primary"`
+	Note      string  `json:"note"`
+	Items     []*item `json:"items" valid:"required"`
 
 	Session *auth.SessionData `json:"-"`
 }
@@ -38,6 +39,12 @@ func (ur *updateRequest) Validate() *validation.Output {
 		o.Failure("type_value.required", errRequiredValue)
 	}
 
+	if len(ur.Items) > 0 {
+		for i, item := range ur.Items {
+			item.Validate(i, o, ur.ID)
+		}
+	}
+
 	return o
 }
 
@@ -46,7 +53,7 @@ func (ur *updateRequest) Messages() map[string]string {
 		"name.required":       errRequiredName,
 		"type.required":       errRequiredType,
 		"type_value.required": errRequiredValue,
-		"areas.required":      errRequiredArea,
+		"items.required":      errRequiredItem,
 	}
 }
 
@@ -62,7 +69,13 @@ func (ur *updateRequest) Save() (u *model.StorageGroup, e error) {
 
 	fields := common.Fields(u, "is_active")
 	if e = u.Save(fields...); e == nil {
-		createAreas(u, ur.Areas, true)
+		o := orm.NewOrm()
+		o.Raw("DELETE FROM storage_group_area where storage_group_id = ?", u.ID).Exec()
+		o.Raw("DELETE FROM storage_group_location where storage_group_id = ?", u.ID).Exec()
+
+		for _, item := range ur.Items {
+			item.Save(u)
+		}
 	}
 
 	return

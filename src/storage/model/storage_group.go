@@ -16,31 +16,6 @@ func init() {
 	orm.RegisterModel(new(StorageGroup))
 }
 
-// StorageArea model for warehouse_area table.
-type StorageArea struct {
-	Identity   int64  `json:"-"`
-	Code       string `json:"code"`
-	Name       string `json:"name"`
-	Note       string `json:"note"`
-	IsSelected int8   `json:"is_selected"`
-}
-
-// MarshalJSON customized data struct when marshaling data
-// into JSON format, all Primary key & Foreign key will be encrypted.
-func (m *StorageArea) MarshalJSON() ([]byte, error) {
-	type Alias StorageArea
-
-	alias := &struct {
-		ID string `json:"id"`
-		*Alias
-	}{
-		ID:    common.Encrypt(m.Identity),
-		Alias: (*Alias)(m),
-	}
-
-	return json.Marshal(alias)
-}
-
 // StorageGroup model for storage_group table.
 type StorageGroup struct {
 	ID        int64  `orm:"column(id);pk" json:"-"`
@@ -51,9 +26,9 @@ type StorageGroup struct {
 	IsPrimary int8   `orm:"column(is_primary)" json:"is_primary"`
 	Note      string `orm:"column(note);null" json:"note"`
 
-	Areas        []*StorageArea     `orm:"-" json:"areas"`
-	ItemGroup    model.ItemGroup    `orm:"-" json:"item_group,omitempty"`
-	ItemCategory model.ItemCategory `orm:"-" json:"item_category,omitempty"`
+	Areas        []*StorageGroupArea `orm:"reverse(many)" json:"areas,omitempty"`
+	ItemGroup    model.ItemGroup     `orm:"-" json:"item_group,omitempty"`
+	ItemCategory model.ItemCategory  `orm:"-" json:"item_category,omitempty"`
 }
 
 // MarshalJSON customized data struct when marshaling data

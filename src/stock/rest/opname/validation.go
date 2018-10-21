@@ -22,7 +22,7 @@ var (
 	errRequiredItem           = "Item harus diisi"
 	errRequiredLocation       = "Lokasi harus diisi"
 	errRequiredBatch          = "Kode batch harus diisi"
-	errRequiredQuantity       = "Quantity harus diisi"
+	errRequiredQuantity       = "Quantity harus diisi atau gunakan void"
 	errRequiredContainerNum   = "No. container harus diisi"
 	errInvalidStockOpname     = "Dokumen tidak valid"
 	errInvalidLocation        = "Lokasi tidak valid atau stockopname masih aktif untuk lokasi ini"
