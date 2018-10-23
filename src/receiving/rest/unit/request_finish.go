@@ -76,6 +76,10 @@ func createStockUnit(ru *model.ReceivingUnit) *model3.StockUnit {
 		ReceivedAt: ru.CreatedAt,
 	}
 
+	if ru.Unit != nil {
+		su.ID = ru.Unit.ID
+	}
+
 	su.GenerateCode("")
 	su.Save()
 

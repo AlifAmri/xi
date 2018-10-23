@@ -6,6 +6,7 @@ package preparation
 
 import (
 	"errors"
+	"fmt"
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/delivery/model"
@@ -14,6 +15,7 @@ import (
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
 	model4 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/warehouse"
+	"strconv"
 )
 
 var (
@@ -79,6 +81,34 @@ func validBatchCode(code string, i *model3.Item) (b *model3.ItemBatch, e error) 
 	b = inventory.GetBatch(i.ID, code)
 
 	return
+}
+
+func validBatchCodeString(code string) (c string, e error) {
+	c = code
+
+	if len(c) == 3 {
+		c = fmt.Sprintf("%s%s", "0", code)
+	}
+
+	if len(c) != 4 {
+		e = errors.New("wrong format")
+	} else {
+		cx := c[0:2]
+		if !validWeek(cx) {
+			return "", errors.New("not valid")
+		}
+	}
+
+	return
+}
+
+func validWeek(s string) bool {
+	i, e := strconv.Atoi(s)
+	if e == nil && i > 0 && i < 54 {
+		return true
+	}
+
+	return false
 }
 
 func validPreparationDocument(ide string) (rp *model.PreparationDocument, e error) {

@@ -22,6 +22,12 @@ type item struct {
 func (rp *item) Validate(index int, o *validation.Output) {
 	var e error
 
+	if rp.BatchCode != "" {
+		if rp.BatchCode, e = validBatchCode(rp.BatchCode); e != nil {
+			o.Failure(fmt.Sprintf("items.%d.batch_code.invalid", index), errInvalidBatchCode)
+		}
+	}
+
 	if rp.ID != "" {
 		if rp.PreparationPlanItem, e = validPreparationPlanItem(rp.ID); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.id.invalid", index), errInvalidReceivingPlan)

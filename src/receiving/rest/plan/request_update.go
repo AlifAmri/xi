@@ -5,6 +5,7 @@
 package plan
 
 import (
+	"fmt"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/auth"
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
@@ -57,9 +58,18 @@ func (ur *updateRequest) Validate() *validation.Output {
 	}
 
 	if len(ur.Items) > 0 {
+		unitCode := make(map[string]int)
 		for i, item := range ur.Items {
 			item.Validate(i, o)
 			ur.TotalQuantity += item.Quantity
+
+			if item.UnitCode != "" {
+				if _, ok := unitCode[item.UnitCode]; ok {
+					o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), errUniqueUnit)
+				} else {
+					unitCode[item.UnitCode] = 1
+				}
+			}
 		}
 	}
 

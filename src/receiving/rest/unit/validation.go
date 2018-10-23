@@ -5,9 +5,13 @@
 package unit
 
 import (
+	"errors"
+	"fmt"
 	"git.qasico.com/gudang/api/src/receiving/model"
+	model2 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/user"
 	"git.qasico.com/gudang/api/src/warehouse"
+	"strconv"
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
@@ -27,7 +31,36 @@ var (
 	errInvalidItem          = "Item tidak valid"
 	errInvalidReceivingUnit = "Dokumen tidak valid"
 	errInvalidLocation      = "Lokasi tidak valid"
+	errInvalidBatchCode     = "Format kode batch tidak valid"
 )
+
+func validBatchCode(code string) (c string, e error) {
+	c = code
+
+	if len(c) == 3 {
+		c = fmt.Sprintf("%s%s", "0", code)
+	}
+
+	if len(c) != 4 {
+		e = errors.New("wrong format")
+	} else {
+		cx := c[0:2]
+		if !validWeek(cx) {
+			return "", errors.New("not valid")
+		}
+	}
+
+	return
+}
+
+func validWeek(s string) bool {
+	i, e := strconv.Atoi(s)
+	if e == nil && i > 0 && i < 54 {
+		return true
+	}
+
+	return false
+}
 
 func validReceiving(ide string) (r *model.Receiving, e error) {
 	r = new(model.Receiving)
@@ -47,15 +80,31 @@ func validCheckedBy(ide string) (r *user.User, e error) {
 	return
 }
 
-func validUnitCode(code string, exclude int64) bool {
+func validUnitCode(code string, exclude int64, rp *model.ReceiptPlan) (r *model2.StockUnit, e error) {
 	var total int64
 	o := orm.NewOrm()
-	o.Raw("SELECT count(*) FROM stock_unit where code = ?", code).QueryRow(&total)
+
+	o.Raw("SELECT count(*) FROM receiving_unit where unit_code = ? and id != ?", code, exclude).QueryRow(&total)
 	if total == 0 {
-		o.Raw("SELECT count(*) FROM receiving_unit where unit_code = ? and id != ?", code, exclude).QueryRow(&total)
+		// cek apakah ada di receiving plan
+		if rp != nil {
+			o.Raw("SELECT count(*) FROM receipt_plan_item where unit_code = ? and plan_id = ?", code, rp.ID).QueryRow(&total)
+			if total > 0 {
+				o.Raw("SELECT * FROM stock_unit where code = ?", code).QueryRow(&r)
+			}
+		}
+
+		if r == nil {
+			o.Raw("SELECT count(*) FROM stock_unit where code = ?", code).QueryRow(&total)
+			if total > 0 {
+				e = errors.New("already used")
+			}
+		}
+	} else {
+		e = errors.New("already receipt")
 	}
 
-	return total == 0
+	return
 }
 
 func validLocation(ide string) (r *warehouse.Location, e error) {

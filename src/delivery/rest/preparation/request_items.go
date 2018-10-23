@@ -33,8 +33,12 @@ func (rp *item) Validate(index int, o *validation.Output) {
 	}
 
 	if rp.Item != nil && rp.BatchCode != "" {
-		if rp.ItemBatch, e = validBatchCode(rp.BatchCode, rp.Item); e != nil {
+		if rp.BatchCode, e = validBatchCodeString(rp.BatchCode); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.batch_code.invalid", index), errInvalidBatchCode)
+		} else {
+			if rp.ItemBatch, e = validBatchCode(rp.BatchCode, rp.Item); e != nil {
+				o.Failure(fmt.Sprintf("items.%d.batch_code.invalid", index), errInvalidBatchCode)
+			}
 		}
 	}
 

@@ -23,6 +23,16 @@ type item struct {
 func (rp *item) Validate(index int, o *validation.Output) {
 	var e error
 
+	if rp.UnitCode != "" && !validUnitCode(rp.UnitCode, rp.ID) {
+		o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", index), errInvalidUnit)
+	}
+
+	if rp.BatchCode != "" {
+		if rp.BatchCode, e = validBatchCode(rp.BatchCode); e != nil {
+			o.Failure(fmt.Sprintf("items.%d.batch_code.invalid", index), errInvalidBatchCode)
+		}
+	}
+
 	if rp.ID != "" {
 		if rp.ReceiptPlanItem, e = validReceiptPlanItem(rp.ID); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.id.invalid", index), errInvalidReceivingPlan)

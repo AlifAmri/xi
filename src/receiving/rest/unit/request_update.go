@@ -5,6 +5,7 @@
 package unit
 
 import (
+	model2 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/warehouse"
 	"time"
 
@@ -30,6 +31,7 @@ type updateRequest struct {
 	ReceivingLocation *warehouse.Location  `json:"-"`
 	CheckedBy         *user.User           `json:"-"`
 	Session           *auth.SessionData    `json:"-"`
+	Unit              *model2.StockUnit    `json:"-"`
 }
 
 func (cr *updateRequest) Validate() *validation.Output {
@@ -40,9 +42,19 @@ func (cr *updateRequest) Validate() *validation.Output {
 		o.Failure("id.invalid", errInvalidReceivingUnit)
 	}
 
+	if cr.ReceivingUnit != nil {
+		cr.ReceivingUnit.Receiving.Read()
+	}
+
 	if cr.LocationID != "" {
 		if cr.ReceivingLocation, e = validLocation(cr.LocationID); e != nil {
 			o.Failure("receiving_location_id.invalid", errInvalidLocation)
+		}
+	}
+
+	if cr.BatchCode != "" {
+		if cr.BatchCode, e = validBatchCode(cr.BatchCode); e != nil {
+			o.Failure("batch_code.invalid", errInvalidBatchCode)
 		}
 	}
 
@@ -52,8 +64,10 @@ func (cr *updateRequest) Validate() *validation.Output {
 		}
 	}
 
-	if cr.UnitCode != "" && !validUnitCode(cr.UnitCode, cr.ID) {
-		o.Failure("unit_id.invalid", errInvalidUnit)
+	if cr.UnitCode != "" && cr.ReceivingUnit != nil {
+		if cr.Unit, e = validUnitCode(cr.UnitCode, cr.ID, cr.ReceivingUnit.Receiving.Plan); e != nil {
+			o.Failure("unit_code.invalid", errInvalidUnit)
+		}
 	}
 
 	return o
@@ -73,6 +87,7 @@ func (cr *updateRequest) Save() (u *model.ReceivingUnit, e error) {
 	u = &model.ReceivingUnit{
 		ID:                cr.ReceivingUnit.ID,
 		Receiving:         cr.ReceivingUnit.Receiving,
+		Unit:              cr.Unit,
 		UnitCode:          cr.UnitCode,
 		ItemCode:          cr.ItemCode,
 		BatchCode:         cr.BatchCode,

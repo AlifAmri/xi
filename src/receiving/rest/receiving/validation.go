@@ -75,8 +75,8 @@ func validBatchCode(code string, i *model3.Item) (b *model3.ItemBatch, e error) 
 func validStockUnit(code string, i *model3.Item, b *model3.ItemBatch) (s *model4.StockUnit, e error) {
 	s = &model4.StockUnit{Item: i, Batch: b, Code: code, Status: "draft"}
 
-	if e = i.Read("item_id", "batch_id", "code"); e != nil {
-		e = i.Save()
+	if e = s.Read("item_id", "batch_id", "code"); e != nil {
+		e = s.Save()
 	}
 
 	return

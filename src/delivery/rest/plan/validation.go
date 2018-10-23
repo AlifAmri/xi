@@ -5,10 +5,13 @@
 package plan
 
 import (
+	"errors"
+	"fmt"
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/delivery/model"
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
+	"strconv"
 )
 
 var (
@@ -19,8 +22,37 @@ var (
 	errInvalidDate          = "Tanggal tidak valid"
 	errInvalidPartner       = "Tujuan pengiriman tidak valid"
 	errInvalidReceivingPlan = "Data tidak valid"
+	errInvalidBatchCode     = "Kode batch tidak valid"
 	errUniqueCode           = "Kode dokumen telah digunakan"
 )
+
+func validBatchCode(code string) (c string, e error) {
+	c = code
+
+	if len(c) == 3 {
+		c = fmt.Sprintf("%s%s", "0", code)
+	}
+
+	if len(c) != 4 {
+		e = errors.New("wrong format")
+	} else {
+		cx := c[0:2]
+		if !validWeek(cx) {
+			return "", errors.New("not valid")
+		}
+	}
+
+	return
+}
+
+func validWeek(s string) bool {
+	i, e := strconv.Atoi(s)
+	if e == nil && i > 0 && i < 54 {
+		return true
+	}
+
+	return false
+}
 
 func validPreparationPlan(id int64, status string) (r *model.PreparationPlan, e error) {
 	e = orm.NewOrm().Raw("SELECT * FROM preparation_plan WHERE id = ? and status = ?", id, status).QueryRow(&r)

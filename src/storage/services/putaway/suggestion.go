@@ -67,10 +67,16 @@ func apriory(itemCode string, batchCode string, wls []*warehouse.Location) (wl *
 			} else {
 				if batchMatch(itemCode, batchCode, l) {
 					pBatch = append(pBatch, l)
+					break
 				}
 
 				if itemMatch(itemCode, l) {
 					pItem = append(pItem, l)
+				}
+
+				// stop looping kalau sudah ada data
+				if len(pItem) > 20 {
+					break
 				}
 			}
 		}

@@ -5,12 +5,12 @@
 package unit
 
 import (
+	model2 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/warehouse"
 	"time"
 
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/receiving/model"
-	"git.qasico.com/gudang/api/src/storage"
 	"git.qasico.com/gudang/api/src/user"
 
 	"git.qasico.com/cuxs/validation"
@@ -30,6 +30,7 @@ type createRequest struct {
 	ReceivingLocation *warehouse.Location `json:"-"`
 	CheckedBy         *user.User          `json:"-"`
 	Session           *auth.SessionData   `json:"-"`
+	Unit              *model2.StockUnit   `json:"-"`
 }
 
 func (cr *createRequest) Validate() *validation.Output {
@@ -39,6 +40,12 @@ func (cr *createRequest) Validate() *validation.Output {
 	if cr.ReceivingID != "" {
 		if cr.Receiving, e = validReceiving(cr.ReceivingID); e != nil {
 			o.Failure("receiving_id.invalid", errInvalidReceiving)
+		}
+	}
+
+	if cr.BatchCode != "" {
+		if cr.BatchCode, e = validBatchCode(cr.BatchCode); e != nil {
+			o.Failure("batch_code.invalid", errInvalidBatchCode)
 		}
 	}
 
@@ -54,8 +61,10 @@ func (cr *createRequest) Validate() *validation.Output {
 		}
 	}
 
-	if cr.UnitCode != "" && !validUnitCode(cr.UnitCode, 0) {
-		o.Failure("unit_code.invalid", errInvalidUnit)
+	if cr.UnitCode != "" && cr.Receiving != nil {
+		if cr.Unit, e = validUnitCode(cr.UnitCode, 0, cr.Receiving.Plan); e != nil {
+			o.Failure("unit_code.invalid", errInvalidUnit)
+		}
 	}
 
 	return o
@@ -74,17 +83,17 @@ func (cr *createRequest) Messages() map[string]string {
 
 func (cr *createRequest) Save() (u *model.ReceivingUnit, e error) {
 	u = &model.ReceivingUnit{
-		Receiving:         cr.Receiving,
-		UnitCode:          cr.UnitCode,
-		ItemCode:          cr.ItemCode,
-		BatchCode:         cr.BatchCode,
-		Quantity:          cr.Quantity,
-		LocationReceived:  cr.ReceivingLocation,
-		LocationSuggested: storage.SuggestedLocation(cr.ItemCode, cr.BatchCode, cr.Quantity, cr.IsNcp),
-		IsNcp:             cr.IsNcp,
-		CheckedBy:         cr.CheckedBy,
-		CreatedBy:         cr.Session.User.(*user.User),
-		CreatedAt:         time.Now(),
+		Unit:             cr.Unit,
+		Receiving:        cr.Receiving,
+		UnitCode:         cr.UnitCode,
+		ItemCode:         cr.ItemCode,
+		BatchCode:        cr.BatchCode,
+		Quantity:         cr.Quantity,
+		LocationReceived: cr.ReceivingLocation,
+		IsNcp:            cr.IsNcp,
+		CheckedBy:        cr.CheckedBy,
+		CreatedBy:        cr.Session.User.(*user.User),
+		CreatedAt:        time.Now(),
 	}
 
 	e = u.Save()

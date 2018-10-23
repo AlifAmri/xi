@@ -5,6 +5,7 @@
 package plan
 
 import (
+	"fmt"
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
 	"time"
 
@@ -51,9 +52,19 @@ func (cr *createRequest) Validate() *validation.Output {
 	}
 
 	if len(cr.Items) > 0 {
+		// unit code kalau diisi harus unique
+		unitCode := make(map[string]int)
 		for i, item := range cr.Items {
 			item.Validate(i, o)
 			cr.TotalQuantity += item.Quantity
+
+			if item.UnitCode != "" {
+				if _, ok := unitCode[item.UnitCode]; ok {
+					o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), errUniqueUnit)
+				} else {
+					unitCode[item.UnitCode] = 1
+				}
+			}
 		}
 	}
 

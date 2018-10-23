@@ -76,7 +76,7 @@ func validBatchCode(code string) (c string, e error) {
 	if len(c) != 4 {
 		e = errors.New("wrong format")
 	} else {
-		cx := code[0:2]
+		cx := c[0:2]
 		if !validWeek(cx) {
 			return "", errors.New("not valid")
 		}
