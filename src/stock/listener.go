@@ -132,6 +132,8 @@ func listenPutaway() {
 			data := <-c
 			ru := data.(*model2.ReceivingUnit)
 
+			ru.Receiving.Read()
+
 			// create movement
 			mv := &model.StockMovement{
 				Unit:        ru.Unit,

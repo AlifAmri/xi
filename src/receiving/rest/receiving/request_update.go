@@ -99,6 +99,10 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 		}
 
 		go services.CreateActual(ur.Receiving)
+		go func() {
+			orm.NewOrm().Raw("UPDATE stock_movement SET ref_code = ? "+
+				"where ref_id = ? and type = 'putaway' and id > 0;", ur.Receiving.DocumentCode, ur.Receiving.ID).Exec()
+		}()
 	}
 
 	return ur.Receiving, e
