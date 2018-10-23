@@ -18,10 +18,8 @@ func Show(id int64) (*model.ReceivingUnit, error) {
 		return nil, err
 	}
 
-	if m.LocationSuggested == nil {
-		m.LocationSuggested = putaway.SuggestedPutaway(m.ItemCode, m.BatchCode, m.IsNcp)
-		m.Save("location_suggested")
-	}
+	m.LocationSuggested = putaway.SuggestedPutaway(m.ItemCode, m.BatchCode, m.IsNcp)
+	m.Save("location_suggested")
 
 	return m, nil
 }

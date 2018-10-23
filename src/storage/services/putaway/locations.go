@@ -21,11 +21,11 @@ func findLocationNCP() (wl []*warehouse.Location) {
 }
 
 func findLocationConfig(icode string, bcode string) (wl []*warehouse.Location) {
-	if wls := configCode(icode); len(wls) > 0 {
+	if wls := configBatch(bcode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
-	if wls := configBatch(bcode); len(wls) > 0 {
+	if wls := configCode(icode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
@@ -97,11 +97,11 @@ func configGroup(code string) (wl []*warehouse.Location) {
 }
 
 func configDefault() (wl []*warehouse.Location) {
-	orm.NewOrm().Raw("SELECT wl.* FROM storage_group_location sgl "+
-		"inner join warehouse_location wl on wl.id = sgl.warehouse_location_id "+
-		"inner join storage_group sg on sg.id = sgl.storage_group_id "+
-		"where sg.type = 'default' and sg.is_active = 1 "+
-		"and wl.is_active = 1 and wl.storage_capacity > wl.storage_used "+
+	orm.NewOrm().Raw("SELECT wl.* FROM storage_group_location sgl " +
+		"inner join warehouse_location wl on wl.id = sgl.warehouse_location_id " +
+		"inner join storage_group sg on sg.id = sgl.storage_group_id " +
+		"where sg.type = 'default' and sg.is_active = 1 " +
+		"and wl.is_active = 1 and wl.storage_capacity > wl.storage_used " +
 		"order by wl.storage_used DESC, wl.id ASC").QueryRows(&wl)
 
 	return
