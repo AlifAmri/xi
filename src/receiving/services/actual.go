@@ -30,15 +30,17 @@ func CalculateActualFromUnit(ru *model.ReceivingUnit) {
 
 	if !updated {
 		for _, d := range ru.Receiving.Actuals {
-			if !updated && d.Item.ID == ru.Unit.Item.ID {
-				if ru.IsNcp == 1 {
-					d.QuantityDefect += ru.Quantity
+			if !updated && d.Batch == nil {
+				if d.Item.ID == ru.Unit.Item.ID {
+					if ru.IsNcp == 1 {
+						d.QuantityDefect += ru.Quantity
+					}
+
+					d.QuantityReceived += ru.Quantity
+
+					d.Save("quantity_defect", "quantity_received")
+					updated = true
 				}
-
-				d.QuantityReceived += ru.Quantity
-
-				d.Save("quantity_defect", "quantity_received")
-				updated = true
 			}
 		}
 	}
