@@ -7,6 +7,7 @@ package opname
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	iModel "git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/model"
@@ -74,9 +75,23 @@ func validBatchCode(code string) (c string, e error) {
 
 	if len(c) != 4 {
 		e = errors.New("wrong format")
+	} else {
+		cx := code[0:2]
+		if !validWeek(cx) {
+			return "", errors.New("not valid")
+		}
 	}
 
 	return
+}
+
+func validWeek(s string) bool {
+	i, e := strconv.Atoi(s)
+	if e == nil && i > 0 && i < 54 {
+		return true
+	}
+
+	return false
 }
 
 func validLocation(ide string) (l *warehouse.Location, e error) {
