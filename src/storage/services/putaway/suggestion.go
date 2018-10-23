@@ -129,8 +129,10 @@ func batchMatch(itemCode string, batchCode string, wl *warehouse.Location) bool 
 			"inner join stock_storage ss on ss.id = su.storage_id "+
 			"inner join item_batch ib on ib.id = su.batch_id "+
 			"inner join item i on i.id = su.item_id "+
+			"left join stock_movement sm on sm.unit_id = su.id and sm.status != 'finish' "+
 			"where (SUBSTRING(ib.code, 1, 2) >= ? and SUBSTRING(ib.code, 1, 2) <= ?) "+
-			"and SUBSTRING(ib.code, 3, 2) = ? and ss.location_id = ? and i.code = ?;", matched[0], matched[1], y, wl.ID, itemCode).QueryRow(&total)
+			"and SUBSTRING(ib.code, 3, 2) = ? and ss.location_id = ? and i.code = ? "+
+			"and sm.id is null;", matched[0], matched[1], y, wl.ID, itemCode).QueryRow(&total)
 
 		if total == 0 {
 			// cek movement
@@ -154,7 +156,9 @@ func itemMatch(itemCode string, wl *warehouse.Location) bool {
 	o.Raw("SELECT count(*) FROM stock_unit su "+
 		"inner join stock_storage ss on ss.id = su.storage_id "+
 		"inner join item i on i.id = su.item_id "+
-		"where i.code = ? and ss.location_id = ?;", itemCode, wl.ID).QueryRow(&total)
+		"left join stock_movement sm on sm.unit_id = su.id and sm.status != 'finish' "+
+		"where i.code = ? and ss.location_id = ? "+
+		"and sm.id is null;", itemCode, wl.ID).QueryRow(&total)
 
 	if total == 0 {
 		// cek movement

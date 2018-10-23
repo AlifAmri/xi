@@ -41,6 +41,10 @@ func findLocationConfig(icode string, bcode string) (wl []*warehouse.Location) {
 		wl = append(wl, wls...)
 	}
 
+	if wls := allLocation(); len(wls) > 0 {
+		wl = append(wl, wls...)
+	}
+
 	return
 }
 
@@ -102,6 +106,14 @@ func configDefault() (wl []*warehouse.Location) {
 		"inner join storage_group sg on sg.id = sgl.storage_group_id " +
 		"where sg.type = 'default' and sg.is_active = 1 " +
 		"and wl.is_active = 1 and wl.storage_capacity > wl.storage_used " +
+		"order by wl.storage_used DESC, wl.id ASC").QueryRows(&wl)
+
+	return
+}
+
+func allLocation() (wl []*warehouse.Location) {
+	orm.NewOrm().Raw("SELECT * FROM warehouse_location wl " +
+		"where wl.is_active = 1 and wl.storage_capacity > wl.storage_used " +
 		"order by wl.storage_used DESC, wl.id ASC").QueryRows(&wl)
 
 	return
