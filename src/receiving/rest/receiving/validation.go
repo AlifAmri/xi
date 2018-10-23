@@ -6,6 +6,7 @@ package receiving
 
 import (
 	"errors"
+	"fmt"
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/inventory"
@@ -13,6 +14,7 @@ import (
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
 	"git.qasico.com/gudang/api/src/receiving/model"
 	model4 "git.qasico.com/gudang/api/src/stock/model"
+	"strconv"
 )
 
 var (
@@ -72,11 +74,40 @@ func validBatchCode(code string, i *model3.Item) (b *model3.ItemBatch, e error) 
 	return
 }
 
-func validStockUnit(code string, i *model3.Item, b *model3.ItemBatch) (s *model4.StockUnit, e error) {
-	s = &model4.StockUnit{Item: i, Batch: b, Code: code, Status: "draft"}
+func validBatchCodeString(code string) (c string, e error) {
+	c = code
 
-	if e = s.Read("item_id", "batch_id", "code"); e != nil {
-		e = s.Save()
+	if len(c) == 3 {
+		c = fmt.Sprintf("%s%s", "0", code)
+	}
+
+	if len(c) != 4 {
+		e = errors.New("wrong format")
+	} else {
+		cx := c[0:2]
+		if !validWeek(cx) {
+			return "", errors.New("not valid")
+		}
+	}
+
+	return
+}
+
+func validWeek(s string) bool {
+	i, e := strconv.Atoi(s)
+	if e == nil && i > 0 && i < 54 {
+		return true
+	}
+
+	return false
+}
+
+func validStockUnit(code string, i *model3.Item, b *model3.ItemBatch) (s *model4.StockUnit, e error) {
+	orm.NewOrm().Raw("SELECT * FROM stock_unit where code = ?", code).QueryRow(&s)
+
+	if s == nil {
+		s = &model4.StockUnit{Item: i, Batch: b, Code: code, Status: "draft"}
+		s.Save()
 	}
 
 	return

@@ -81,6 +81,8 @@ func CreateActual(r *model.Receiving) {
 	o.LoadRelated(r, "Units", 1)
 
 	for _, u := range r.Units {
-		CalculateActualFromUnit(u)
+		if u.Unit != nil {
+			CalculateActualFromUnit(u)
+		}
 	}
 }
