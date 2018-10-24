@@ -32,6 +32,7 @@ var (
 	errInvalidReceivingUnit = "Dokumen tidak valid"
 	errInvalidLocation      = "Lokasi tidak valid"
 	errInvalidBatchCode     = "Format kode batch tidak valid"
+	errInvalidItemCode      = "Kode tidak ditemukan atau tidak aktif"
 )
 
 func validBatchCode(code string) (c string, e error) {
@@ -78,6 +79,14 @@ func validCheckedBy(ide string) (r *user.User, e error) {
 	}
 
 	return
+}
+
+func validItemCode(code string) bool {
+	var total int64
+
+	orm.NewOrm().Raw("SELECT count(*) FROM item where code = ? and type_id = ? and is_active = ?", code, 1, 1).QueryRow(&total)
+
+	return total == 1
 }
 
 func validUnitCode(code string, exclude int64, rp *model.ReceiptPlan) (r *model2.StockUnit, e error) {

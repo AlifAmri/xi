@@ -43,6 +43,12 @@ func (cr *createRequest) Validate() *validation.Output {
 		}
 	}
 
+	if cr.ItemCode != "" {
+		if !validItemCode(cr.ItemCode) {
+			o.Failure("item_code.invalid", errInvalidItemCode)
+		}
+	}
+
 	if cr.BatchCode != "" {
 		if cr.BatchCode, e = validBatchCode(cr.BatchCode); e != nil {
 			o.Failure("batch_code.invalid", errInvalidBatchCode)

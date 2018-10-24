@@ -11,7 +11,6 @@ import (
 
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/receiving/model"
-	"git.qasico.com/gudang/api/src/storage"
 	"git.qasico.com/gudang/api/src/user"
 
 	"git.qasico.com/cuxs/validation"
@@ -44,6 +43,12 @@ func (cr *updateRequest) Validate() *validation.Output {
 
 	if cr.ReceivingUnit != nil {
 		cr.ReceivingUnit.Receiving.Read()
+	}
+
+	if cr.ItemCode != "" {
+		if !validItemCode(cr.ItemCode) {
+			o.Failure("item_code.invalid", errInvalidItemCode)
+		}
 	}
 
 	if cr.LocationID != "" {
@@ -85,19 +90,18 @@ func (cr *updateRequest) Messages() map[string]string {
 
 func (cr *updateRequest) Save() (u *model.ReceivingUnit, e error) {
 	u = &model.ReceivingUnit{
-		ID:                cr.ReceivingUnit.ID,
-		Receiving:         cr.ReceivingUnit.Receiving,
-		Unit:              cr.Unit,
-		UnitCode:          cr.UnitCode,
-		ItemCode:          cr.ItemCode,
-		BatchCode:         cr.BatchCode,
-		Quantity:          cr.Quantity,
-		LocationReceived:  cr.ReceivingLocation,
-		LocationSuggested: storage.SuggestedLocation(cr.ItemCode, cr.BatchCode, cr.Quantity, cr.IsNcp),
-		IsNcp:             cr.IsNcp,
-		CheckedBy:         cr.CheckedBy,
-		CreatedBy:         cr.Session.User.(*user.User),
-		CreatedAt:         time.Now(),
+		ID:               cr.ReceivingUnit.ID,
+		Receiving:        cr.ReceivingUnit.Receiving,
+		Unit:             cr.Unit,
+		UnitCode:         cr.UnitCode,
+		ItemCode:         cr.ItemCode,
+		BatchCode:        cr.BatchCode,
+		Quantity:         cr.Quantity,
+		LocationReceived: cr.ReceivingLocation,
+		IsNcp:            cr.IsNcp,
+		CheckedBy:        cr.CheckedBy,
+		CreatedBy:        cr.Session.User.(*user.User),
+		CreatedAt:        time.Now(),
 	}
 
 	e = u.Save()
