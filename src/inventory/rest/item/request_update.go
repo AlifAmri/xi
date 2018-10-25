@@ -37,11 +37,6 @@ func (c *updateRequest) Validate() *validation.Output {
 	o := &validation.Output{Valid: true}
 	var e error
 
-	// nama harus unique
-	if !validCode(c.Code, c.ID) {
-		o.Failure("code.unique", errUniqueCode)
-	}
-
 	// id harus benar
 	if !validID(c.ID) {
 		o.Failure("id.invalid", errInvalidID)
@@ -68,6 +63,13 @@ func (c *updateRequest) Validate() *validation.Output {
 	if c.PreferredAreaID != "" {
 		if c.PreferredArea, e = validArea(c.PreferredAreaID); e != nil {
 			o.Failure("preferred_area_id.invalid", errInvalidArea)
+		}
+	}
+
+	// nama harus unique
+	if c.ItemType != nil {
+		if !validCode(c.Code, c.ItemType.ID, 0) {
+			o.Failure("code.unique", errUniqueCode)
 		}
 	}
 

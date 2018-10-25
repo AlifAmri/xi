@@ -60,7 +60,6 @@ func getSuggestion(p *model.Preparation) {
 
 	// loop through documents
 	for _, i := range p.Documents {
-		// @todo quantity harus dikurangi dengan total quantity unit yang udah di pick
 		var withBatch string
 		var qp float64
 
@@ -111,8 +110,6 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64) (r []*model.Pr
 				totalQuantityChoosed += si.Quantity
 				r = append(r, ps)
 			}
-
-			fmt.Println(totalQuantityChoosed, q)
 
 			if totalQuantityChoosed == q {
 				break

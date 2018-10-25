@@ -36,11 +36,6 @@ func (c *createRequest) Validate() *validation.Output {
 	o := &validation.Output{Valid: true}
 	var e error
 
-	// nama harus unique
-	if !validCode(c.Code, 0) {
-		o.Failure("code.unique", errUniqueCode)
-	}
-
 	if c.GroupID != "" {
 		if c.ItemGroup, e = validGroup(c.GroupID); e != nil {
 			o.Failure("group_id.invalid", errInvalidGroup)
@@ -62,6 +57,13 @@ func (c *createRequest) Validate() *validation.Output {
 	if c.PreferredAreaID != "" {
 		if c.PreferredArea, e = validArea(c.PreferredAreaID); e != nil {
 			o.Failure("preferred_area_id.invalid", errInvalidArea)
+		}
+	}
+
+	// nama harus unique
+	if c.ItemType != nil {
+		if !validCode(c.Code, c.ItemType.ID, 0) {
+			o.Failure("code.unique", errUniqueCode)
 		}
 	}
 

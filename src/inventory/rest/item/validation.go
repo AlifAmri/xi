@@ -32,9 +32,9 @@ type attribute struct {
 	Value     string `json:"value"`
 }
 
-func validCode(code string, exclude int64) bool {
+func validCode(code string, tid int64, exclude int64) bool {
 	var total int64
-	orm.NewOrm().Raw("SELECT count(*) FROM item where code = ? and id != ?", code, exclude).QueryRow(&total)
+	orm.NewOrm().Raw("SELECT count(*) FROM item where code = ? and type_id = ? and id != ?", code, tid, exclude).QueryRow(&total)
 
 	return total == 0
 }
