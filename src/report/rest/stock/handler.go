@@ -58,7 +58,7 @@ func (h *Handler) stockItem(c echo.Context) (e error) {
 	var backdate time.Time
 
 	isExport := ctx.QueryParam("export") == "1"
-	backdate = now.NewParse("2006-01-02", ctx.QueryParam("date")).EndOfDay()
+	backdate = now.NewParse(time.RFC3339, ctx.QueryParam("date")).Time
 
 	data, total, e := item.Get(rq)
 	if e == nil {
@@ -83,7 +83,7 @@ func (h *Handler) stockBatch(c echo.Context) (e error) {
 	var backdate time.Time
 
 	isExport := ctx.QueryParam("export") == "1"
-	backdate = now.NewParse("2006-01-02", ctx.QueryParam("date")).EndOfDay()
+	backdate = now.NewParse(time.RFC3339, ctx.QueryParam("date")).Time
 
 	// sort berdasarkan item dan batch
 	rq.OrderBy = []string{"item_id", "code"}
