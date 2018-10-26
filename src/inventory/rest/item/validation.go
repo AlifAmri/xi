@@ -16,6 +16,7 @@ var (
 	errRequiredName     = "nama harus diisi"
 	errRequiredType     = "tipe item harus dipilih"
 	errUniqueCode       = "kode tersebut telah digunakan"
+	errRequiredItem     = "Item harus diisi"
 	errInvalidGroup     = "grup item tidak dapat ditemukan"
 	errInvalidType      = "tipe item tidak dapat ditemukan"
 	errInvalidCategory  = "kategori item tidak dapat ditemukan"
@@ -25,6 +26,7 @@ var (
 	errCascadeID        = "kategory masih digunakan oleh item"
 	errAlreadyDeactived = "status item sudah tidak aktif"
 	errAlreadyActived   = "status item sudah aktif"
+	errInvalidItem      = "Item tidak valid"
 )
 
 type attribute struct {
@@ -42,6 +44,15 @@ func validCode(code string, tid int64, exclude int64) bool {
 func validItem(id int64) (ig *model.Item, e error) {
 	ig = &model.Item{ID: id}
 	e = ig.Read()
+
+	return
+}
+
+func validItemID(ide string) (ig *model.Item, e error) {
+	ig = new(model.Item)
+	if ig.ID, e = common.Decrypt(ide); e == nil {
+		e = ig.Read()
+	}
 
 	return
 }

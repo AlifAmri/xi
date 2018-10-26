@@ -26,6 +26,7 @@ type Item struct {
 	Category      *ItemCategory   `orm:"column(category_id);null;rel(fk)" json:"category,omitempty"`
 	PreferredArea *warehouse.Area `orm:"column(preferred_area);null;rel(fk)" json:"preferred_area"`
 	Code          string          `orm:"column(code);size(45)" json:"code"`
+	Equation      string          `orm:"column(equation);size(45)" json:"equation"`
 	IsActive      int8            `orm:"column(is_active)" json:"is_active"`
 	Name          string          `orm:"column(name);size(145)" json:"name"`
 	Image         string          `orm:"column(image);null" json:"image"`
@@ -35,6 +36,7 @@ type Item struct {
 	Note          string          `orm:"column(note);null" json:"note"`
 
 	Attributes map[string]string `orm:"-" json:"attributes"`
+	Equations  []*Item           `orm:"-" json:"equations"`
 }
 
 // MarshalJSON customized data struct when marshaling data

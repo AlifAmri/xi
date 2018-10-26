@@ -22,6 +22,7 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.PUT("/:id/delete", h.delete, auth.Authorized(""))
 	r.PUT("/:id/activate", h.activate, auth.Authorized(""))
 	r.PUT("/:id/deactivate", h.deactivate, auth.Authorized(""))
+	r.POST("/equation", h.updateEquation, auth.Authorized(""))
 }
 
 func (h *Handler) get(c echo.Context) (e error) {
@@ -115,6 +116,19 @@ func (h *Handler) deactivate(c echo.Context) (e error) {
 			if e = ctx.Bind(&dr); e == nil {
 				e = dr.Save()
 			}
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) updateEquation(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+
+	var ur equationRequest
+	if ur.Session, e = auth.RequestSession(ctx); e == nil {
+		if e = ctx.Bind(&ur); e == nil {
+			e = ur.Save()
 		}
 	}
 

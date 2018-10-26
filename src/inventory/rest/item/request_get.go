@@ -14,18 +14,22 @@ func Show(id int64) (*model.Item, error) {
 	m := new(model.Item)
 	o := orm.NewOrm()
 	if err := o.QueryTable(m).Filter("id", id).RelatedSel().Limit(1).One(m); err != nil {
-		var attrs []attribute
-
-		if i, _ := o.Raw("SELECT attribute, value FROM item_attribute where item_id = ?", m.ID).QueryRows(&attrs); i > 0 {
-			m.Attributes = make(map[string]string, i)
-
-			for _, a := range attrs {
-				m.Attributes[a.Attribute] = a.Value
-			}
-		}
-
 		return nil, err
 	}
+
+	var attrs []attribute
+	if i, _ := o.Raw("SELECT attribute, value FROM item_attribute where item_id = ?", m.ID).QueryRows(&attrs); i > 0 {
+		m.Attributes = make(map[string]string, i)
+
+		for _, a := range attrs {
+			m.Attributes[a.Attribute] = a.Value
+		}
+	}
+
+	if m.Equation != "" {
+		o.Raw("SELECT * FROM item where equation = ? and type_id = ? and id != ?", m.Equation, m.Type.ID, m.ID).QueryRows(&m.Equations)
+	}
+
 	return m, nil
 }
 
