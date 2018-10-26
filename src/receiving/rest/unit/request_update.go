@@ -70,7 +70,7 @@ func (cr *updateRequest) Validate() *validation.Output {
 	}
 
 	if cr.UnitCode != "" && cr.ReceivingUnit != nil {
-		if cr.Unit, e = validUnitCode(cr.UnitCode, cr.ID, cr.ReceivingUnit.Receiving.Plan); e != nil {
+		if cr.Unit, e = validUnitCode(cr.UnitCode, cr.ID, cr.ReceivingUnit.Receiving); e != nil {
 			o.Failure("unit_code.invalid", errInvalidUnit)
 		}
 	}

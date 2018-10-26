@@ -68,7 +68,7 @@ func (cr *createRequest) Validate() *validation.Output {
 	}
 
 	if cr.UnitCode != "" && cr.Receiving != nil {
-		if cr.Unit, e = validUnitCode(cr.UnitCode, 0, cr.Receiving.Plan); e != nil {
+		if cr.Unit, e = validUnitCode(cr.UnitCode, 0, cr.Receiving); e != nil {
 			o.Failure("unit_code.invalid", errInvalidUnit)
 		}
 	}

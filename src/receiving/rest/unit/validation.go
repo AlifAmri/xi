@@ -89,7 +89,7 @@ func validItemCode(code string) bool {
 	return total == 1
 }
 
-func validUnitCode(code string, exclude int64, rp *model.ReceiptPlan) (r *model2.StockUnit, e error) {
+func validUnitCode(code string, exclude int64, rp *model.Receiving) (r *model2.StockUnit, e error) {
 	var total int64
 	o := orm.NewOrm()
 
@@ -97,7 +97,16 @@ func validUnitCode(code string, exclude int64, rp *model.ReceiptPlan) (r *model2
 	if total == 0 {
 		// cek apakah ada di receiving plan
 		if rp != nil {
-			o.Raw("SELECT count(*) FROM receipt_plan_item where unit_code = ? and plan_id = ?", code, rp.ID).QueryRow(&total)
+			if rp.Plan != nil {
+				o.Raw("SELECT count(*) FROM receipt_plan_item where unit_code = ? and plan_id = ?", code, rp.Plan.ID).QueryRow(&total)
+			}
+
+			if total == 0 {
+				o.Raw("SELECT count(*) FROM receiving_document rd "+
+					"inner join stock_unit su on su.id = rd.unit_id "+
+					"where rd.receiving_id = ? and su.code = ?;", rp.ID, code).QueryRow(&total)
+			}
+
 			if total > 0 {
 				o.Raw("SELECT * FROM stock_unit where code = ?", code).QueryRow(&r)
 			}
