@@ -17,9 +17,9 @@ type Handler struct{}
 
 // URLMapping declare endpoint with handler function.
 func (h *Handler) URLMapping(r *echo.Group) {
-	r.GET("", h.Get, auth.Authorized("su"))
-	r.PUT("/:id/activate", h.Activate, auth.Authorized("su"))
-	r.PUT("/:id/deactivate", h.Deactivate, auth.Authorized("su"))
+	r.GET("", h.Get, auth.Authorized(""))
+	r.PUT("/:id/activate", h.Activate, auth.Authorized(""))
+	r.PUT("/:id/deactivate", h.Deactivate, auth.Authorized(""))
 }
 
 // Get rest handler untuk mendapatkan data privilege
