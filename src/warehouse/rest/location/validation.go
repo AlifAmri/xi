@@ -25,6 +25,7 @@ var (
 	errInvalidArea      = "Area tidak dapat ditemukan"
 	errAlreadyActived   = "Status area sudah aktif"
 	errAlreadyDeactived = "Status area sudah tidak aktif"
+	errCascadeID        = "Lokasi tidak dapat dihapus"
 )
 
 func validCode(code string, areaID int64, exclude int64) bool {
@@ -48,4 +49,11 @@ func validLocation(id int64) (u *warehouse.Location, e error) {
 	e = u.Read()
 
 	return
+}
+
+func validDelete(id int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_storage where location_id = ?", id).QueryRow(&total)
+
+	return total == 0
 }
