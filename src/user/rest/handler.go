@@ -23,6 +23,7 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.GET("/:id/privilege", h.permission, auth.Authorized(""))
 	r.PUT("/:id/activate", h.activate, auth.Authorized(""))
 	r.PUT("/:id/deactivate", h.deactivate, auth.Authorized(""))
+	r.PUT("/:id/reload", h.reload, auth.Authorized(""))
 	r.PUT("/:id/privilege", h.privilege, auth.Authorized(""))
 	r.PUT("/me", h.profile, auth.Authorized(""))
 }
@@ -115,6 +116,21 @@ func (h *Handler) deactivate(c echo.Context) (e error) {
 		if dr.Session, e = auth.RequestSession(ctx); e == nil {
 			if e = ctx.Bind(&dr); e == nil {
 				e = dr.Save()
+			}
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) reload(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+
+	var rl reloadRequest
+	if rl.ID, e = ctx.Decrypt("id"); e == nil {
+		if rl.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&rl); e == nil {
+				e = rl.Reload()
 			}
 		}
 	}
