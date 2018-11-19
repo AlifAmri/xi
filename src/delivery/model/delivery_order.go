@@ -91,7 +91,6 @@ func (m *DeliveryOrder) Save(fields ...string) (err error) {
 	if m.ID > 0 {
 		_, err = o.Update(m, fields...)
 	} else {
-		m.Code = m.generateCode()
 		m.ID, err = o.Insert(m)
 	}
 	return
@@ -117,6 +116,13 @@ func (m *DeliveryOrder) Delete() (err error) {
 func (m *DeliveryOrder) Read(fields ...string) error {
 	o := orm.NewOrm()
 	return o.Read(m, fields...)
+}
+
+// Finish generate code and set status to finish
+func (m *DeliveryOrder) Finish() error {
+	m.Code = m.generateCode()
+	m.Status = "finish"
+	return m.Save("code", "status")
 }
 
 // generateCode to generate new stock opname code

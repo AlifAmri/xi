@@ -34,9 +34,7 @@ func (cr *finishRequest) Messages() map[string]string {
 }
 
 func (cr *finishRequest) Save() (e error) {
-	cr.DeliveryOrder.Status = "finish"
-
-	if e = cr.DeliveryOrder.Save("status"); e == nil {
+	if e = cr.DeliveryOrder.Finish(); e == nil {
 		go event.Call("delivery::finished", cr.DeliveryOrder)
 	}
 
