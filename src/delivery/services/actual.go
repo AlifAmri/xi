@@ -63,6 +63,7 @@ func CreateActual(r *model.Preparation) {
 			Item:            d.Item,
 			Batch:           d.Batch,
 			QuantityPlanned: d.Quantity,
+			Year:            d.Year,
 		}
 
 		ra.Save()

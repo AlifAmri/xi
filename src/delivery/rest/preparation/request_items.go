@@ -16,6 +16,8 @@ type item struct {
 	ItemCode  string  `json:"item_code" valid:"required"`
 	BatchCode string  `json:"batch_code"`
 	Quantity  float64 `json:"quantity" valid:"required|gte:1"`
+	Week      string  `json:"week"`
+	Year      string  `json:"year"`
 
 	Item                *ModelInventory.Item       `json:"-"`
 	ItemBatch           *ModelInventory.ItemBatch  `json:"-"`
@@ -55,6 +57,8 @@ func (rp *item) Save(r *model.Preparation) *model.PreparationDocument {
 		Item:        rp.Item,
 		Batch:       rp.ItemBatch,
 		Quantity:    rp.Quantity,
+		Week:        rp.Week,
+		Year:        rp.Year,
 	}
 
 	if rp.PreparationDocument != nil {

@@ -25,6 +25,7 @@ type PreparationSuggested struct {
 	Item      *model.Item         `json:"item"`
 	ItemBatch *model.ItemBatch    `json:"item_batch"`
 	Quantity  float64             `json:"quantity"`
+	YearBatch string              `json:"year"`
 }
 
 // Preparation model for Preparation table.

@@ -22,6 +22,8 @@ type PreparationDocument struct {
 	Item        *model.Item      `orm:"column(item_id);null;rel(fk)" json:"item,omitempty"`
 	Batch       *model.ItemBatch `orm:"column(batch_id);null;rel(fk)" json:"batch,omitempty"`
 	Quantity    float64          `orm:"column(quantity);digits(12);decimals(2)" json:"quantity"`
+	Week        string           `orm:"column(week);null" json:"week"`
+	Year        string           `orm:"column(year);null" json:"year"`
 }
 
 // MarshalJSON customized data struct when marshaling data

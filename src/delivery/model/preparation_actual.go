@@ -25,6 +25,8 @@ type PreparationActual struct {
 	QuantityPlanned  float64          `orm:"column(quantity_planned);digits(12);decimals(2)" json:"quantity_planned"`
 	QuantityPrepared float64          `orm:"column(quantity_prepared);digits(12);decimals(2)" json:"quantity_prepared"`
 	Note             string           `orm:"column(note);null" json:"note"`
+	Year             string           `orm:"column(year);null" json:"year"`
+	Week             string           `orm:"column(week);null" json:"week"`
 }
 
 // MarshalJSON customized data struct when marshaling data
