@@ -50,8 +50,10 @@ func CalculateActualFromUnit(ru *model.ReceivingUnit) {
 			Receiving:        ru.Receiving,
 			Item:             ru.Unit.Item,
 			Batch:            ru.Unit.Batch,
-			QuantityDefect:   ru.Quantity,
 			QuantityReceived: ru.Quantity,
+		}
+		if ru.IsNcp == 1 {
+			ra.QuantityDefect = ru.Quantity
 		}
 
 		ra.Save()
