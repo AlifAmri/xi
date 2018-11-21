@@ -41,7 +41,7 @@ func relateDocuments(m *model.Preparation) {
 	for _, doc := range m.Documents {
 		var stock float64
 		if doc.Batch == nil && doc.Year != "" {
-			o.Raw("SELECT SUM(ib.stock) FROM item_batch ib WHERE SUBSTRING(ib.code, -2) = ?", doc.Year).QueryRow(&stock)
+			o.Raw("SELECT SUM(ib.stock) FROM item_batch ib WHERE SUBSTRING(ib.code, -2) = ? AND ib.item_id = ?", doc.Year, doc.Item.ID).QueryRow(&stock)
 			doc.Item.Stock = stock
 		}
 	}
