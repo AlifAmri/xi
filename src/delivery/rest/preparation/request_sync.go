@@ -5,12 +5,13 @@
 package preparation
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/delivery/model"
 	"git.qasico.com/gudang/api/src/user"
-	"time"
 )
 
 type syncRequest struct {

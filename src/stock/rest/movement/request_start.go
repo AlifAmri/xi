@@ -5,11 +5,12 @@
 package movement
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/user"
-	"time"
 )
 
 type startRequest struct {

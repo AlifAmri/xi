@@ -5,6 +5,8 @@
 package stock
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/common/now"
 	"git.qasico.com/cuxs/cuxs"
 	"git.qasico.com/gudang/api/src/auth"
@@ -12,7 +14,6 @@ import (
 	"git.qasico.com/gudang/api/src/inventory/rest/item"
 	"git.qasico.com/gudang/api/src/warehouse"
 	"github.com/labstack/echo"
-	"time"
 )
 
 // Handler collection handler for privilege.
@@ -61,7 +62,7 @@ func (h *Handler) stockItem(c echo.Context) (e error) {
 	backdate = now.NewParse(time.RFC3339, ctx.QueryParam("date")).Time
 
 	data, total, e := item.Get(rq)
-	if e == nil {
+	if e == nil && total > int64(0) {
 		stockItemBackDate(backdate, *data)
 
 		if isExport {
@@ -89,7 +90,7 @@ func (h *Handler) stockBatch(c echo.Context) (e error) {
 	rq.OrderBy = []string{"item_id", "code"}
 
 	data, total, e := batch.Get(rq)
-	if e == nil {
+	if e == nil && total > int64(0) {
 		stockBatchBackDate(backdate, *data)
 
 		if isExport {

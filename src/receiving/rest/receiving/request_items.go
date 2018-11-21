@@ -6,6 +6,7 @@ package receiving
 
 import (
 	"fmt"
+
 	ModelInventory "git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/receiving/model"
 	ModelStock "git.qasico.com/gudang/api/src/stock/model"

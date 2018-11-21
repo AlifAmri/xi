@@ -6,6 +6,7 @@ package model
 
 import (
 	"encoding/json"
+
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 )

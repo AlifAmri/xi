@@ -6,11 +6,12 @@ package preparation
 
 import (
 	"fmt"
+	"time"
+
 	"git.qasico.com/cuxs/cuxs/event"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/delivery/model"
-	"time"
 )
 
 type finishRequest struct {

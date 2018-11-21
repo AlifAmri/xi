@@ -6,9 +6,10 @@ package model
 
 import (
 	"encoding/json"
+	"time"
+
 	"git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/warehouse"
-	"time"
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"

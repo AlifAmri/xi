@@ -7,11 +7,12 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	model2 "git.qasico.com/gudang/api/src/partnership/model"
-	"git.qasico.com/gudang/api/src/vehicle/model"
 	"strconv"
 	"strings"
 	"time"
+
+	model2 "git.qasico.com/gudang/api/src/partnership/model"
+	"git.qasico.com/gudang/api/src/vehicle/model"
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
