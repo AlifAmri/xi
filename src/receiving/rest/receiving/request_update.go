@@ -100,8 +100,11 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 
 		go services.CreateActual(ur.Receiving)
 		go func() {
-			orm.NewOrm().Raw("UPDATE stock_movement SET ref_code = ? "+
+			o := orm.NewOrm()
+			o.Raw("UPDATE stock_movement SET ref_code = ? "+
 				"where ref_id = ? and type = 'putaway' and id > 0;", ur.Receiving.DocumentCode, ur.Receiving.ID).Exec()
+			o.Raw("UPDATE incoming_vehicle ivh INNER JOIN receiving r ON r.vehicle_id = ivh.id "+
+				"SET ivh.status = 'in_progress' WHERE r.id = ? AND ivh.status = ?", ur.ID, "in_queue").Exec()
 		}()
 	}
 

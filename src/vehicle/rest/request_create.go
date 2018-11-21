@@ -70,7 +70,7 @@ func (cr *createRequest) Save() (u *model.IncomingVehicle, e error) {
 		ContainerNumber: cr.ContainerNumber,
 		SealNumber:      cr.SealNumber,
 		Notes:           cr.Notes,
-		Status:          "in_progress",
+		Status:          "in_queue",
 		InAt:            time.Now(),
 	}
 

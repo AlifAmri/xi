@@ -80,6 +80,11 @@ func (cr *syncRequest) Save() (e error) {
 		cr.ReceiptPlan.Save("status")
 
 		go services.CreateActual(cr.Receiving)
+		go func() {
+			o := orm.NewOrm()
+			o.Raw("UPDATE incoming_vehicle ivh INNER JOIN receiving r ON r.vehicle_id = ivh.id "+
+				"SET ivh.status = 'in_progress' WHERE r.id = ? AND ivh.status = ?", cr.Receiving.ID, "in_queue").Exec()
+		}()
 	}
 
 	return

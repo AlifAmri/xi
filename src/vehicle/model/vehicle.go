@@ -22,7 +22,7 @@ type IncomingVehicle struct {
 	ID              int64              `orm:"column(id);auto" json:"-"`
 	DocumentID      int64              `orm:"column(document_id);null" json:"document_id"`
 	Purpose         string             `orm:"column(purpose);null;options(receiving,dispatching,other)" json:"purpose"`
-	Status          string             `orm:"column(status);null;options(in_progress,finished,out)" json:"status"`
+	Status          string             `orm:"column(status);null;options(in_queue,in_progress,finished,out)" json:"status"`
 	VehicleType     string             `orm:"column(vehicle_type);size(45)" json:"vehicle_type"`
 	VehicleNumber   string             `orm:"column(vehicle_number);size(45)" json:"vehicle_number"`
 	Driver          string             `orm:"column(driver);size(145)" json:"driver"`

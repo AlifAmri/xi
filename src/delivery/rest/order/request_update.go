@@ -84,7 +84,14 @@ func (ur *updateRequest) Save() (u *model.DeliveryOrder, e error) {
 					plan.Save("delivery_order_id")
 				}
 			}
+			// update incoming vehicle status when DO is filled
+			go func() {
+				o := orm.NewOrm()
+				o.Raw("UPDATE incoming_vehicle ivh INNER JOIN delivery_order do ON do.vehicle_id = ivh.id "+
+					"SET ivh.status = 'in_progress' WHERE do.id = ? AND ivh.status = ?", ur.ID, "in_queue").Exec()
+			}()
 		}
+
 	}
 
 	return
