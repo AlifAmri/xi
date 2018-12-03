@@ -7,6 +7,8 @@ package preparation
 import (
 	"time"
 
+	"fmt"
+
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/delivery/model"
@@ -40,7 +42,8 @@ func (ur *pickingRequest) Validate() *validation.Output {
 	}
 
 	if ur.StockUnit != nil && ur.StockUnit.Stock < ur.Quantity {
-		o.Failure("quantity.invalid", errInvalidQuantity)
+		message := fmt.Sprintf(", stock content hanya memiliki %v item", ur.StockUnit.Stock)
+		o.Failure("quantity.invalid", errInvalidQuantity+message)
 	}
 
 	if ur.QuantityRequired < ur.Quantity {

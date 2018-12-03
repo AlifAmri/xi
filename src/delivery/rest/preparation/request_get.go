@@ -36,18 +36,6 @@ func Show(id int64) (*model.Preparation, error) {
 	return m, nil
 }
 
-// Show find a single data warehouse_area using field and value condition.
-func relateDocuments(m *model.Preparation) {
-	o := orm.NewOrm()
-	for _, doc := range m.Documents {
-		var stock float64
-		if doc.Batch == nil && doc.Year != "" {
-			o.Raw("SELECT SUM(ib.stock) FROM item_batch ib WHERE SUBSTRING(ib.code, -2) = ? AND ib.item_id = ?", doc.Year, doc.Item.ID).QueryRow(&stock)
-			doc.Item.Stock = stock
-		}
-	}
-}
-
 // Get get all data warehouse_area that matched with query request parameters.
 // returning slices of Area, total data without limit and error.
 func Get(rq *orm.RequestQuery) (m *[]model.Preparation, total int64, err error) {
@@ -142,4 +130,48 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (
 	}
 
 	return
+}
+
+// relateDocuments calculate stock base on location and available
+func relateDocuments(m *model.Preparation) {
+	o := orm.NewOrm()
+
+	for _, doc := range m.Documents {
+		var withBatch, batchJoin, receiveBatch string
+		var avail, prepar, receiv float64
+		if doc.Batch == nil {
+			if doc.Year != "" {
+				withBatch = fmt.Sprintf(" and SUBSTRING(ib.code, -2) = '%s' ", doc.Year)
+				batchJoin = " inner join item_batch ib on ib.id = su.batch_id "
+				receiveBatch = fmt.Sprintf(" and SUBSTRING(ru.batch_code, -2) = '%s' ", doc.Year)
+			}
+		} else {
+			receiveBatch = fmt.Sprintf(" and ru.batch_code = %d", doc.Batch.Code)
+			withBatch = fmt.Sprintf(" and su.batch_id = %d", doc.Batch.ID)
+			batchJoin = " inner join item_batch ib on ib.id = su.batch_id "
+		}
+
+		o.Raw("SELECT sum(su.stock) as quantity FROM stock_unit su "+
+			"inner join stock_storage ss on ss.id = su.storage_id "+
+			"inner join warehouse_location wl on wl.id = ss.location_id "+
+			"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+batchJoin+
+			"where wa.type = 'storage' and su.status = 'stored' and su.is_defect = 0 and su.item_id = ? "+withBatch+
+			";", doc.Item.ID).QueryRow(&avail)
+		o.Raw("SELECT sum(su.stock) as quantity FROM stock_unit su "+
+			"inner join stock_storage ss on ss.id = su.storage_id "+
+			"inner join warehouse_location wl on wl.id = ss.location_id "+
+			"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+batchJoin+
+			"where wa.type = 'preparation' and su.status = 'stored' and su.is_defect = 0 and su.item_id = ? "+withBatch+
+			";", doc.Item.ID).QueryRow(&prepar)
+
+		o.Raw("SELECT sum(ru.quantity) as quantity FROM receiving_unit ru "+
+			"inner join warehouse_location wl on wl.id = ru.location_received "+
+			"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+
+			"where wa.type = 'receiving' and ru.is_ncp = 0 and ru.is_active = 0 and ru.item_code = ? "+receiveBatch+
+			";", doc.Item.Code).QueryRow(&receiv)
+		doc.AvailStock = avail
+		doc.PreparationStock = prepar
+		doc.ReceivingStock = receiv
+
+	}
 }

@@ -25,6 +25,10 @@ type PreparationDocument struct {
 	Quantity    float64          `orm:"column(quantity);digits(12);decimals(2)" json:"quantity"`
 	Week        string           `orm:"column(week);null" json:"week"`
 	Year        string           `orm:"column(year);null" json:"year"`
+
+	AvailStock       float64 `orm:"-" json:"avail_stock"`
+	PreparationStock float64 `orm:"-" json:"preparation_stock"`
+	ReceivingStock   float64 `orm:"-" json:"receiving_stock"`
 }
 
 // MarshalJSON customized data struct when marshaling data

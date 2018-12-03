@@ -1,0 +1,8 @@
+SET FOREIGN_KEY_CHECKS = 0;
+CREATE TABLE `counter` (
+  `id` BIGINT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `table_name` VARCHAR(45) NOT NULL,
+  `value` BIGINT(11) UNSIGNED NULL,
+  `note` TINYTEXT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `counter_unique` (`table_name` ASC));

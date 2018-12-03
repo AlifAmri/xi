@@ -36,7 +36,10 @@ type DeliveryOrder struct {
 	CreatedBy       *user.User             `orm:"column(created_by);null;rel(fk)" json:"created_by"`
 	CreatedAt       time.Time              `orm:"column(created_at);type(timestamp);null" json:"created_at"`
 
-	Items []*Preparation `orm:"reverse(many)" json:"items,omitempty"`
+	Tire4W  float64        `orm:"-" json:"total_tire_4w"`
+	Tire2W  float64        `orm:"-" json:"total_tire_2w"`
+	Counter string         `orm:"-" json:"counter_print"`
+	Items   []*Preparation `orm:"reverse(many)" json:"items,omitempty"`
 }
 
 // MarshalJSON customized data struct when marshaling data
