@@ -102,8 +102,8 @@ func validLocationBulk(loc string) (l *warehouse.Location, e error) {
 func validItemBulk(itm *item, locID int64, o *validation.Output) (ItemOp *opnameItem) {
 	ItemOp = new(opnameItem)
 	if itm.CodeSize != "" {
-		ItemOp.Item = &model.Item{Code: itm.CodeSize, IsActive: 1}
-		if e := ItemOp.Item.Read("Code", "IsActive"); e != nil {
+		ItemOp.Item = &model.Item{Code: itm.CodeSize, IsActive: 1,Type:&model.ItemType{ID:1}}
+		if e := ItemOp.Item.Read("Code", "IsActive","Type"); e != nil {
 			o.Failure(fmt.Sprintf("code size %s with No %v invalid", itm.CodeSize, itm.No), "tidak valid atau tidak aktif")
 		} else {
 			ItemOp.Item.Type.Read("ID")
