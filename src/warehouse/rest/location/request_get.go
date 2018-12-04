@@ -8,6 +8,7 @@ import (
 	"git.qasico.com/gudang/api/src/warehouse"
 
 	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/gudang/api/src/stock/model"
 )
 
 // Show find a single data warehouse_Location using field and value condition.
@@ -18,6 +19,29 @@ func Show(id int64) (*warehouse.Location, error) {
 		return nil, err
 	}
 	return m, nil
+}
+
+// Data for print
+type Data struct {
+	Loc  *warehouse.Location `json:"location,omitempty"`
+	Unit []*model.StockUnit  `json:"units,omitempty"`
+}
+
+// Show find a single data warehouse_Location using field and value condition.
+func ShowPrint(id int64) (*Data, error) {
+	var ret *Data
+	var mx []*model.StockUnit
+	m := new(warehouse.Location)
+	o := orm.NewOrm()
+	if err := o.QueryTable(m).Filter("id", id).RelatedSel().Limit(1).One(m); err != nil {
+		return nil, err
+	} else {
+		if _, err2 := o.QueryTable(new(model.StockUnit)).Filter("item_id__type_id__id", 1).Filter("storage_id__location_id__id", m.ID).Exclude("status", "void").Exclude("status", "draft").Exclude("status", "out").RelatedSel().All(&mx); err2 != nil {
+			return nil, err2
+		}
+		ret = &Data{Loc: m, Unit: mx}
+	}
+	return ret, nil
 }
 
 // Get get all data warehouse_Location that matched with query request parameters.

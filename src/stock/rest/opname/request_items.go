@@ -110,8 +110,9 @@ func (oi *opnameItem) Save(so *model.StockOpname, u *user.User) {
 		}
 
 		oi.StockUnit.GenerateCode("")
-		oi.StockUnit.Save()
+		err := oi.StockUnit.Save()
 		oi.IsNewUnit = 1
+		fmt.Println("show error unit -------------- :", err)
 	}
 
 	if oi.IsVoid == 1 {
@@ -141,5 +142,6 @@ func (oi *opnameItem) Save(so *model.StockOpname, u *user.User) {
 		soi.IsNewUnit = oi.StockopnameItem.IsNewUnit
 	}
 
-	soi.Save()
+	er := soi.Save()
+	fmt.Println("show error op item-------------- :", er)
 }
