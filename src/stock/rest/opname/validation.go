@@ -139,3 +139,8 @@ func validContainer(ide string) (c *iModel.Item, e error) {
 
 	return
 }
+
+func validContainerBulk(code string) (c *iModel.Item, e error) {
+	e = orm.NewOrm().Raw("SELECT i.* from item i INNER JOIN item_type it on i.type_id = it.id where i.code = ? and i.is_active = ? and it.is_container = ?", code, 1, 1).QueryRow(&c)
+	return
+}

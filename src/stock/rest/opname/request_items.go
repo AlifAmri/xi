@@ -96,6 +96,7 @@ func (oi *opnameItem) Validate(index int, o *validation.Output) {
 }
 
 func (oi *opnameItem) Save(so *model.StockOpname, u *user.User) {
+
 	if oi.StockUnit == nil && oi.Item.Type.IsBatch == int8(1) {
 		oi.StockUnit = &model.StockUnit{
 			Code:       oi.UnitCode,
