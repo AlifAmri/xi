@@ -5,8 +5,9 @@
 package opname
 
 import (
-	"git.qasico.com/cuxs/cuxs/event"
 	"time"
+
+	"git.qasico.com/cuxs/cuxs/event"
 
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/stock/model"

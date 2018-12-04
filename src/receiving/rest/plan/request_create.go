@@ -6,8 +6,9 @@ package plan
 
 import (
 	"fmt"
-	model2 "git.qasico.com/gudang/api/src/partnership/model"
 	"time"
+
+	model2 "git.qasico.com/gudang/api/src/partnership/model"
 
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/receiving/model"

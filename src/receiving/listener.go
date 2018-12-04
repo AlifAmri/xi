@@ -5,11 +5,12 @@
 package stock
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/cuxs/event"
 	model2 "git.qasico.com/gudang/api/src/receiving/model"
 	"git.qasico.com/gudang/api/src/stock/services/stock"
 	"git.qasico.com/gudang/api/src/vehicle/model"
-	"time"
 )
 
 func init() {

@@ -6,6 +6,7 @@ package model
 
 import (
 	"encoding/json"
+
 	"git.qasico.com/gudang/api/src/inventory/model"
 	stock "git.qasico.com/gudang/api/src/stock/model"
 

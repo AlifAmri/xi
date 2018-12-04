@@ -10,6 +10,7 @@ import (
 
 	"errors"
 	"fmt"
+
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/inventory"
@@ -111,15 +112,18 @@ func validItemBulk(itm *item, locID int64, o *validation.Output) (ItemOp *opname
 				ItemOp.UnitCode = itm.StockContent
 				ItemOp.StockUnit = &model2.StockUnit{Code: ItemOp.UnitCode}
 				if e = ItemOp.StockUnit.Read("Code"); e == nil {
-					ItemOp.StockUnit.Storage.Read("ID")
+					if ItemOp.StockUnit.Storage != nil {
+						ItemOp.StockUnit.Storage.Read("ID")
+						if ItemOp.StockUnit.Storage.Location.ID != locID {
+							o.Failure(fmt.Sprintf("lokasi stock content %s with No %v invalid", itm.StockContent, itm.No), "tidak valid atau lokasi stock content salah")
+						}
+					}
 					ItemOp.StockUnit.Item.Read("ID")
 
 					if ItemOp.StockUnit.Item.ID != ItemOp.Item.ID {
 						o.Failure(fmt.Sprintf("stock content %s with No %v invalid", itm.StockContent, itm.No), "tidak valid atau sudah ada di item lain")
 					}
-					if ItemOp.StockUnit.Storage.Location.ID != locID {
-						o.Failure(fmt.Sprintf("lokasi stock content %s with No %v invalid", itm.StockContent, itm.No), "tidak valid atau lokasi stock content salah")
-					}
+
 				} else {
 					ItemOp.StockUnit = nil
 				}

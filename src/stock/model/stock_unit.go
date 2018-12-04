@@ -6,13 +6,14 @@ package model
 
 import (
 	"encoding/json"
+	"time"
+
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/custom/barcode"
 	"git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/services/unit"
 	"git.qasico.com/gudang/api/src/user"
-	"time"
 )
 
 func init() {

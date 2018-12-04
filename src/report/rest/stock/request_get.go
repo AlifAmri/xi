@@ -6,12 +6,13 @@ package stock
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"git.qasico.com/cuxs/orm"
 	model2 "git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/warehouse"
-	"strings"
-	"time"
 
 	"git.qasico.com/cuxs/common/log"
 	"git.qasico.com/cuxs/env"

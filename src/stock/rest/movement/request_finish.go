@@ -5,13 +5,14 @@
 package movement
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/cuxs/event"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	model2 "git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/warehouse"
-	"time"
 )
 
 type finishRequest struct {

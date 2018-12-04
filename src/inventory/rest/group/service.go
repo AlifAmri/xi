@@ -6,9 +6,10 @@ package group
 
 import (
 	"fmt"
+	"strings"
+
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/inventory/model"
-	"strings"
 )
 
 func createAttribute(ig *model.ItemGroup, attribs []attribute, delete bool) {

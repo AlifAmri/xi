@@ -5,6 +5,8 @@
 package stock
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/common/now"
 	"git.qasico.com/cuxs/cuxs"
 	"git.qasico.com/gudang/api/src/auth"
@@ -12,7 +14,6 @@ import (
 	"git.qasico.com/gudang/api/src/inventory/rest/item"
 	"git.qasico.com/gudang/api/src/warehouse"
 	"github.com/labstack/echo"
-	"time"
 )
 
 // Handler collection handler for privilege.

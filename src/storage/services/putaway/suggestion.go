@@ -5,10 +5,11 @@
 package putaway
 
 import (
-	"git.qasico.com/cuxs/orm"
-	"git.qasico.com/gudang/api/src/warehouse"
 	"strconv"
 	"strings"
+
+	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/gudang/api/src/warehouse"
 )
 
 func SuggestedPutaway(itemCode string, batchCode string, ncp int8) (wl *warehouse.Location) {

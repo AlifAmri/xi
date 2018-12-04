@@ -5,10 +5,11 @@
 package rest
 
 import (
+	"time"
+
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/vehicle/model"
-	"time"
 )
 
 type outRequest struct {
