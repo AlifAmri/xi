@@ -127,22 +127,23 @@ func validItemBulk(itm *item, locID int64, o *validation.Output) (ItemOp *opname
 				} else {
 					ItemOp.StockUnit = nil
 				}
-				if itm.Weekly != "" {
-					if ItemOp.BatchCode, e = validBatchCode(itm.Weekly); e != nil {
-						o.Failure(fmt.Sprintf("weekly %s with No %v invalid", itm.Weekly, itm.No), "format weekly salah")
-					} else {
-						ItemOp.ItemBatch = inventory.GetBatch(ItemOp.Item.ID, ItemOp.BatchCode)
-					}
-				}
-				ItemOp.Quantity = itm.Quantity
-				if itm.Quantity == 0 {
-					o.Failure(fmt.Sprintf("quantity No %v salah", itm.No), "harus diisi")
-				}
-				if ItemOp.Container, e = validContainerBulk(itm.PalletType); e != nil {
-					o.Failure(fmt.Sprintf("tipe pallet %s with No %v invalid", itm.PalletType, itm.No), "tipe pallet salah")
-				}
-				ItemOp.ContainerNum = int8(common.ToInt(itm.NoPallet))
 			}
+
+			if itm.Weekly != "" {
+				if ItemOp.BatchCode, e = validBatchCode(itm.Weekly); e != nil {
+					o.Failure(fmt.Sprintf("weekly %s with No %v invalid", itm.Weekly, itm.No), "format weekly salah")
+				} else {
+					ItemOp.ItemBatch = inventory.GetBatch(ItemOp.Item.ID, ItemOp.BatchCode)
+				}
+			}
+			ItemOp.Quantity = itm.Quantity
+			if itm.Quantity == 0 {
+				o.Failure(fmt.Sprintf("quantity No %v salah", itm.No), "harus diisi")
+			}
+			if ItemOp.Container, e = validContainerBulk(itm.PalletType); e != nil {
+				o.Failure(fmt.Sprintf("tipe pallet %s with No %v invalid", itm.PalletType, itm.No), "tipe pallet salah")
+			}
+			ItemOp.ContainerNum = int8(common.ToInt(itm.NoPallet))
 
 		}
 	}
