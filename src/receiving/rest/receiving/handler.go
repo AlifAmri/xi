@@ -6,6 +6,7 @@ package receiving
 
 import (
 	"git.qasico.com/cuxs/cuxs"
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/auth"
 	"github.com/labstack/echo"
 )
@@ -20,6 +21,7 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.PUT("/sync/:id", h.sync, auth.Authorized(""))
 	r.PUT("/:id", h.update, auth.Authorized(""))
 	r.PUT("/finish/:id", h.finish, auth.Authorized(""))
+	r.PUT("/out/:id", h.out, auth.Authorized(""))
 }
 
 func (h *Handler) get(c echo.Context) (e error) {
@@ -85,6 +87,20 @@ func (h *Handler) finish(c echo.Context) (e error) {
 			if e = ctx.Bind(&ur); e == nil {
 				ctx.ResponseData, e = ur.Save()
 			}
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) out(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+	var ID int64
+	if ID, e = ctx.Decrypt("id"); e == nil {
+		_, e = orm.NewOrm().Raw("UPDATE incoming_vehicle ivh INNER JOIN receiving r ON r.vehicle_id = ivh.id "+
+			"SET ivh.status = 'finished' WHERE r.id = ?", ID).Exec()
+		if e == nil {
+			ctx.ResponseData = "success"
 		}
 	}
 

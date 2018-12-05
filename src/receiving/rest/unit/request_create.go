@@ -14,6 +14,7 @@ import (
 	"git.qasico.com/gudang/api/src/receiving/model"
 	"git.qasico.com/gudang/api/src/user"
 
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 )
 
@@ -104,5 +105,10 @@ func (cr *createRequest) Save() (u *model.ReceivingUnit, e error) {
 	}
 
 	e = u.Save()
+	go func() {
+		o := orm.NewOrm()
+		o.Raw("UPDATE incoming_vehicle ivh INNER JOIN receiving r ON r.vehicle_id = ivh.id "+
+			"SET ivh.status = 'in_progress' WHERE r.id = ? AND ivh.status = ?", u.Receiving.ID, "in_queue").Exec()
+	}()
 	return
 }

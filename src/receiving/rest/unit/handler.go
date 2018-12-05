@@ -5,8 +5,6 @@
 package unit
 
 import (
-	"fmt"
-
 	"git.qasico.com/cuxs/cuxs"
 	"git.qasico.com/gudang/api/src/auth"
 	"github.com/labstack/echo"
@@ -61,9 +59,6 @@ func (h *Handler) update(c echo.Context) (e error) {
 			}
 		}
 	}
-
-	fmt.Println(e)
-	fmt.Println("===")
 
 	return ctx.Serve(e)
 }
