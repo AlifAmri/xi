@@ -19,6 +19,7 @@ import (
 type finishRequest struct {
 	ID         int64  `json:"-" valid:"required"`
 	LocationID string `json:"location_id" valid:"required"`
+	IsNotFull  int8   `json:"is_not_full"`
 
 	ReceivingUnit *model.ReceivingUnit `json:"-"`
 	Location      *warehouse.Location  `json:"-"`
@@ -53,8 +54,8 @@ func (cr *finishRequest) Save() (e error) {
 	cr.ReceivingUnit.IsActive = 1
 	cr.ReceivingUnit.ApprovedBy = cr.Session.User.(*user.User)
 	cr.ReceivingUnit.Unit = createStockUnit(cr.ReceivingUnit)
-
-	if e = cr.ReceivingUnit.Save("location_moved", "is_active", "approved_by", "unit_id"); e == nil {
+	cr.ReceivingUnit.IsNotFullPallet = cr.IsNotFull
+	if e = cr.ReceivingUnit.Save("location_moved", "is_active", "is_not_full", "approved_by", "unit_id"); e == nil {
 		go event.Call("receiving.unit::finished", cr.ReceivingUnit)
 		go services.CalculateActualFromUnit(cr.ReceivingUnit)
 	}

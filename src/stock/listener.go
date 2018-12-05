@@ -137,16 +137,18 @@ func listenPutaway() {
 
 			// create movement
 			mv := &model.StockMovement{
-				Unit:        ru.Unit,
-				Type:        "putaway",
-				RefID:       uint64(ru.Receiving.ID),
-				RefCode:     ru.Receiving.DocumentCode,
-				Status:      "new",
-				Quantity:    ru.Quantity,
-				Origin:      ru.LocationReceived,
-				Destination: ru.LocationMoved,
-				CreatedBy:   ru.ApprovedBy,
-				CreatedAt:   time.Now(),
+				Unit:            ru.Unit,
+				Type:            "putaway",
+				RefID:           uint64(ru.Receiving.ID),
+				RefCode:         ru.Receiving.DocumentCode,
+				Status:          "new",
+				Quantity:        ru.Quantity,
+				Origin:          ru.LocationReceived,
+				Destination:     ru.LocationMoved,
+				CreatedBy:       ru.ApprovedBy,
+				CreatedAt:       time.Now(),
+				IsNotFullPallet: ru.IsNotFullPallet,
+				Pallet:          ru.Pallet,
 			}
 
 			mv.Save()

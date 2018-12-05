@@ -13,6 +13,7 @@ import (
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/user"
 	"git.qasico.com/gudang/api/src/warehouse"
 )
@@ -23,26 +24,28 @@ func init() {
 
 // StockMovement model for movement table.
 type StockMovement struct {
-	ID          int64               `orm:"column(id);auto" json:"-"`
-	Code        string              `orm:"column(code);size(45)" json:"code"`
-	Unit        *StockUnit          `orm:"column(unit_id);rel(fk)" json:"unit,omitempty"`
-	Type        string              `orm:"column(type);options(routine,picking,putaway)" json:"type"`
-	RefID       uint64              `orm:"column(ref_id);null" json:"-"`
-	RefCode     string              `orm:"column(ref_code);null" json:"ref_code"`
-	Status      string              `orm:"column(status);options(new,start,finish)" json:"status"`
-	Quantity    float64             `orm:"column(quantity);digits(12);decimals(2)" json:"quantity"`
-	IsPartial   uint8               `orm:"column(is_partial)" json:"is_partial"`
-	IsMerger    uint8               `orm:"column(is_merger)" json:"is_merger"`
-	Origin      *warehouse.Location `orm:"column(origin_id);null;rel(fk)" json:"origin,omitempty"`
-	Destination *warehouse.Location `orm:"column(destination_id);null;rel(fk)" json:"destination,omitempty"`
-	NewUnit     *StockUnit          `orm:"column(new_unit);null;rel(fk)" json:"new_unit"`
-	MergeUnit   *StockUnit          `orm:"column(merge_unit);null;rel(fk)" json:"merge_unit"`
-	Note        string              `orm:"column(note);null" json:"note"`
-	CreatedBy   *user.User          `orm:"column(created_by);rel(fk)" json:"created_by"`
-	MovedBy     *user.User          `orm:"column(moved_by);null;rel(fk)" json:"moved_by"`
-	CreatedAt   time.Time           `orm:"column(created_at);type(timestamp)" json:"created_at"`
-	StartedAt   time.Time           `orm:"column(started_at);type(timestamp);null" json:"started_at"`
-	FinishedAt  time.Time           `orm:"column(finished_at);type(timestamp);null" json:"finished_at"`
+	ID              int64               `orm:"column(id);auto" json:"-"`
+	Code            string              `orm:"column(code);size(45)" json:"code"`
+	Unit            *StockUnit          `orm:"column(unit_id);rel(fk)" json:"unit,omitempty"`
+	Type            string              `orm:"column(type);options(routine,picking,putaway)" json:"type"`
+	RefID           uint64              `orm:"column(ref_id);null" json:"-"`
+	RefCode         string              `orm:"column(ref_code);null" json:"ref_code"`
+	Status          string              `orm:"column(status);options(new,start,finish)" json:"status"`
+	Quantity        float64             `orm:"column(quantity);digits(12);decimals(2)" json:"quantity"`
+	IsPartial       uint8               `orm:"column(is_partial)" json:"is_partial"`
+	IsMerger        uint8               `orm:"column(is_merger)" json:"is_merger"`
+	Origin          *warehouse.Location `orm:"column(origin_id);null;rel(fk)" json:"origin,omitempty"`
+	Destination     *warehouse.Location `orm:"column(destination_id);null;rel(fk)" json:"destination,omitempty"`
+	NewUnit         *StockUnit          `orm:"column(new_unit);null;rel(fk)" json:"new_unit"`
+	MergeUnit       *StockUnit          `orm:"column(merge_unit);null;rel(fk)" json:"merge_unit"`
+	Pallet          *model.Item         `orm:"column(pallet_id);rel(fk)" json:"pallet,omitempty"`
+	IsNotFullPallet int8                `orm:"column(is_not_full)" json:"is_not_full"`
+	Note            string              `orm:"column(note);null" json:"note"`
+	CreatedBy       *user.User          `orm:"column(created_by);rel(fk)" json:"created_by"`
+	MovedBy         *user.User          `orm:"column(moved_by);null;rel(fk)" json:"moved_by"`
+	CreatedAt       time.Time           `orm:"column(created_at);type(timestamp)" json:"created_at"`
+	StartedAt       time.Time           `orm:"column(started_at);type(timestamp);null" json:"started_at"`
+	FinishedAt      time.Time           `orm:"column(finished_at);type(timestamp);null" json:"finished_at"`
 }
 
 // MarshalJSON customized data struct when marshaling data
@@ -57,6 +60,7 @@ func (m *StockMovement) MarshalJSON() ([]byte, error) {
 		DestinationID string `json:"destination_id"`
 		NewUnitID     string `json:"new_unit_id"`
 		MergeUnitID   string `json:"merge_unit_id"`
+		PalletID      string `json:"pallet_id"`
 		MovedByID     string `json:"moved_by_id"`
 		CreatedByID   string `json:"created_by_id"`
 		UnitID        string `json:"unit_id"`
@@ -76,6 +80,14 @@ func (m *StockMovement) MarshalJSON() ([]byte, error) {
 		alias.CreatedByID = common.Encrypt(m.CreatedBy.ID)
 	} else {
 		alias.CreatedBy = nil
+	}
+
+	// Encrypt alias.PalletID when m.Pallet not nill
+	// and the ID is setted
+	if m.Pallet != nil && m.Pallet.ID != int64(0) {
+		alias.PalletID = common.Encrypt(m.Pallet.ID)
+	} else {
+		alias.Pallet = nil
 	}
 
 	// Encrypt alias.UnitID when m.Unit not nill

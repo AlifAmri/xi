@@ -34,7 +34,7 @@ func Get(rq *orm.RequestQuery) (m *[]model.StockMovement, total int64, err error
 
 	// get data requested
 	var mx []model.StockMovement
-	if _, err = q.All(&mx, rq.Fields...); err == nil {
+	if _, err = q.RelatedSel("pallet_id").All(&mx, rq.Fields...); err == nil {
 		return &mx, total, nil
 	}
 

@@ -15,6 +15,7 @@ import (
 	"git.qasico.com/gudang/api/src/user"
 
 	"git.qasico.com/cuxs/validation"
+	model3 "git.qasico.com/gudang/api/src/inventory/model"
 )
 
 type updateRequest struct {
@@ -24,6 +25,7 @@ type updateRequest struct {
 	ItemCode    string  `json:"item_code" valid:"required"`
 	BatchCode   string  `json:"batch_code" valid:"required"`
 	Quantity    float64 `json:"quantity" valid:"required|gte:1|numeric"`
+	PalletID    string  `json:"pallet_id" valid:"required"`
 	IsNcp       int8    `json:"is_ncp"`
 	CheckedByID string  `json:"checked_by_id" valid:"required"`
 
@@ -32,6 +34,7 @@ type updateRequest struct {
 	CheckedBy         *user.User           `json:"-"`
 	Session           *auth.SessionData    `json:"-"`
 	Unit              *model2.StockUnit    `json:"-"`
+	Pallet            *model3.Item         `json:"-"`
 }
 
 func (cr *updateRequest) Validate() *validation.Output {
@@ -44,6 +47,12 @@ func (cr *updateRequest) Validate() *validation.Output {
 
 	if cr.ReceivingUnit != nil {
 		cr.ReceivingUnit.Receiving.Read()
+	}
+
+	if cr.PalletID != "" {
+		if cr.Pallet, e = validPallet(cr.PalletID); e != nil {
+			o.Failure("pallet_id.invalid", "pallet is invalid")
+		}
 	}
 
 	if cr.ItemCode != "" {
@@ -98,6 +107,7 @@ func (cr *updateRequest) Save() (u *model.ReceivingUnit, e error) {
 		ItemCode:         cr.ItemCode,
 		BatchCode:        cr.BatchCode,
 		Quantity:         cr.Quantity,
+		Pallet:           cr.Pallet,
 		LocationReceived: cr.ReceivingLocation,
 		IsNcp:            cr.IsNcp,
 		CheckedBy:        cr.CheckedBy,

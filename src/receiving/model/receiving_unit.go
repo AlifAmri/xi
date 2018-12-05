@@ -14,6 +14,7 @@ import (
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
+	model2 "git.qasico.com/gudang/api/src/inventory/model"
 )
 
 func init() {
@@ -28,12 +29,14 @@ type ReceivingUnit struct {
 	LocationReceived  *warehouse.Location `orm:"column(location_received);null;rel(fk)" json:"location_received"`
 	LocationSuggested *warehouse.Location `orm:"column(location_suggested);null;rel(fk)" json:"location_suggested"`
 	LocationMoved     *warehouse.Location `orm:"column(location_moved);null;rel(fk)" json:"location_moved"`
+	Pallet            *model2.Item        `orm:"column(pallet_id);rel(fk)" json:"pallet,omitempty"`
 	UnitCode          string              `orm:"column(unit_code);size(100);null" json:"unit_code"`
 	ItemCode          string              `orm:"column(item_code);size(100);null" json:"item_code"`
 	BatchCode         string              `orm:"column(batch_code);size(100);null" json:"batch_code"`
 	Quantity          float64             `orm:"column(quantity);digits(12);decimals(2)" json:"quantity"`
 	IsNcp             int8                `orm:"column(is_ncp)" json:"is_ncp"`
 	IsActive          int8                `orm:"column(is_active)" json:"is_active"`
+	IsNotFullPallet   int8                `orm:"column(is_not_full)" json:"is_not_full"`
 	CheckedBy         *user.User          `orm:"column(checked_by);null;rel(fk)" json:"checked_by"`
 	CreatedBy         *user.User          `orm:"column(created_by);null;rel(fk)" json:"created_by"`
 	ApprovedBy        *user.User          `orm:"column(approved_by);null;rel(fk)" json:"approved_by"`
@@ -52,6 +55,7 @@ func (m *ReceivingUnit) MarshalJSON() ([]byte, error) {
 		LocationReceivedID  string `json:"location_received_id"`
 		LocationSuggestedID string `json:"location_suggested_id"`
 		LocationMovedID     string `json:"location_moved_id"`
+		PalletID            string `json:"pallet_id"`
 		CheckedByID         string `json:"checked_by_id"`
 		CreatedByID         string `json:"created_by_id"`
 		ApprovedByID        string `json:"approved_by_id"`
@@ -67,6 +71,14 @@ func (m *ReceivingUnit) MarshalJSON() ([]byte, error) {
 		alias.ReceivingID = common.Encrypt(m.Receiving.ID)
 	} else {
 		alias.Receiving = nil
+	}
+
+	// Encrypt alias.PalletID when m.Pallet not nill
+	// and the ID is setted
+	if m.Pallet != nil && m.Pallet.ID != int64(0) {
+		alias.PalletID = common.Encrypt(m.Pallet.ID)
+	} else {
+		alias.Pallet = nil
 	}
 
 	// Encrypt alias.UnitID when m.Unit not nill

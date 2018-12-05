@@ -16,6 +16,7 @@ import (
 
 	"git.qasico.com/cuxs/common"
 	"git.qasico.com/cuxs/orm"
+	model3 "git.qasico.com/gudang/api/src/inventory/model"
 )
 
 var (
@@ -135,6 +136,14 @@ func validLocation(ide string) (r *warehouse.Location, e error) {
 	return
 }
 
+func validPallet(ide string) (r *model3.Item, e error) {
+	var ID int64
+	if ID, e = common.Decrypt(ide); e == nil {
+		e = orm.NewOrm().Raw("SELECT * FROM item i where i.id = ? and i.is_active = ? and i.type_id = ?", ID, 1, 3).QueryRow(&r)
+	}
+
+	return
+}
 func validReceivingUnit(id int64, s string) (r *model.ReceivingUnit, e error) {
 	e = orm.NewOrm().Raw("SELECT * FROM receiving_unit where id = ? and is_active = ?", id, 0).QueryRow(&r)
 

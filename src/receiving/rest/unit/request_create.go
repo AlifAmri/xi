@@ -16,6 +16,7 @@ import (
 
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
+	model3 "git.qasico.com/gudang/api/src/inventory/model"
 )
 
 type createRequest struct {
@@ -25,6 +26,7 @@ type createRequest struct {
 	ItemCode    string  `json:"item_code" valid:"required"`
 	BatchCode   string  `json:"batch_code" valid:"required"`
 	Quantity    float64 `json:"quantity" valid:"required|gte:1|numeric"`
+	PalletID    string  `json:"pallet_id" valid:"required"`
 	IsNcp       int8    `json:"is_ncp"`
 	CheckedByID string  `json:"checked_by_id" valid:"required"`
 
@@ -33,6 +35,7 @@ type createRequest struct {
 	CheckedBy         *user.User          `json:"-"`
 	Session           *auth.SessionData   `json:"-"`
 	Unit              *model2.StockUnit   `json:"-"`
+	Pallet            *model3.Item        `json:"-"`
 }
 
 func (cr *createRequest) Validate() *validation.Output {
@@ -42,6 +45,12 @@ func (cr *createRequest) Validate() *validation.Output {
 	if cr.ReceivingID != "" {
 		if cr.Receiving, e = validReceiving(cr.ReceivingID); e != nil {
 			o.Failure("receiving_id.invalid", errInvalidReceiving)
+		}
+	}
+
+	if cr.PalletID != "" {
+		if cr.Pallet, e = validPallet(cr.PalletID); e != nil {
+			o.Failure("pallet_id.invalid", "pallet is invalid")
 		}
 	}
 
@@ -86,6 +95,7 @@ func (cr *createRequest) Messages() map[string]string {
 		"batch_code.required":            errRequiredBatchCode,
 		"quantity.required":              errRequiredQuantity,
 		"checked_by_id.required":         errRequiredCheckedBy,
+		"pallet_id.required":             "Pallet harus diisi",
 	}
 }
 
@@ -98,6 +108,7 @@ func (cr *createRequest) Save() (u *model.ReceivingUnit, e error) {
 		BatchCode:        cr.BatchCode,
 		Quantity:         cr.Quantity,
 		LocationReceived: cr.ReceivingLocation,
+		Pallet:           cr.Pallet,
 		IsNcp:            cr.IsNcp,
 		CheckedBy:        cr.CheckedBy,
 		CreatedBy:        cr.Session.User.(*user.User),
