@@ -19,6 +19,7 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.GET("", h.get, auth.Authorized(""))
 	r.POST("", h.create, auth.Authorized(""))
 	r.GET("/:id", h.detail, auth.Authorized(""))
+	r.GET("/:id/print", h.print, auth.Authorized(""))
 	r.PUT("/:id", h.update, auth.Authorized(""))
 	r.PUT("/:id/activate", h.activate, auth.Authorized(""))
 	r.PUT("/:id/deactivate", h.deactivate, auth.Authorized(""))
@@ -42,6 +43,19 @@ func (h *Handler) detail(c echo.Context) (e error) {
 	var id int64
 	if id, e = ctx.Decrypt("id"); e == nil {
 		if ctx.ResponseData, e = Show(id); e != nil {
+			e = echo.ErrNotFound
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) print(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+
+	var id int64
+	if id, e = ctx.Decrypt("id"); e == nil {
+		if ctx.ResponseData, e = ShowPrint(id); e != nil {
 			e = echo.ErrNotFound
 		}
 	}
