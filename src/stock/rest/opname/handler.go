@@ -17,6 +17,7 @@ type Handler struct{}
 func (h *Handler) URLMapping(r *echo.Group) {
 	r.GET("", h.get, auth.Authorized(""))
 	r.POST("", h.create, auth.Authorized(""))
+	r.POST("/import", h.bulk, auth.Authorized(""))
 	r.GET("/:id", h.detail, auth.Authorized(""))
 	r.PUT("/:id", h.update, auth.Authorized(""))
 	r.PUT("/:id/commit", h.commit, auth.Authorized(""))
@@ -57,6 +58,18 @@ func (h *Handler) create(c echo.Context) (e error) {
 		}
 	}
 
+	return ctx.Serve(e)
+}
+
+func (h *Handler) bulk(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+	var cr bulkRequest
+	if cr.Session, e = auth.RequestSession(ctx); e == nil {
+		if e = ctx.Bind(&cr); e == nil {
+			e = cr.Save()
+			ctx.ResponseData = "success"
+		}
+	}
 	return ctx.Serve(e)
 }
 
