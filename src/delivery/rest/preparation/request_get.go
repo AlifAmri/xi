@@ -146,7 +146,7 @@ func relateDocuments(m *model.Preparation) {
 				receiveBatch = fmt.Sprintf(" and SUBSTRING(ru.batch_code, -2) = '%s' ", doc.Year)
 			}
 		} else {
-			receiveBatch = fmt.Sprintf(" and ru.batch_code = %d", doc.Batch.Code)
+			receiveBatch = fmt.Sprintf(" and ru.batch_code = %s", doc.Batch.Code)
 			withBatch = fmt.Sprintf(" and su.batch_id = %d", doc.Batch.ID)
 			batchJoin = " inner join item_batch ib on ib.id = su.batch_id "
 		}

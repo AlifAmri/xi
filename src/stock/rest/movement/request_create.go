@@ -129,19 +129,21 @@ func (cr *createRequest) Save() (u *model.StockMovement, e error) {
 	}
 
 	u = &model.StockMovement{
-		Unit:        cr.Unit,
-		Type:        "routine",
-		Status:      "new",
-		Quantity:    cr.Quantity,
-		IsPartial:   cr.IsPartial,
-		IsMerger:    cr.IsMerger,
-		Origin:      cr.Origin,
-		Destination: cr.Destination,
-		NewUnit:     newUnit,
-		MergeUnit:   cr.MergeUnit,
-		Note:        cr.Note,
-		CreatedBy:   cr.Session.User.(*user.User),
-		CreatedAt:   time.Now(),
+		Unit:            cr.Unit,
+		Type:            "routine",
+		Status:          "new",
+		Quantity:        cr.Quantity,
+		IsPartial:       cr.IsPartial,
+		IsMerger:        cr.IsMerger,
+		Origin:          cr.Origin,
+		Destination:     cr.Destination,
+		NewUnit:         newUnit,
+		MergeUnit:       cr.MergeUnit,
+		Note:            cr.Note,
+		CreatedBy:       cr.Session.User.(*user.User),
+		CreatedAt:       time.Now(),
+		IsNotFullPallet: int8(cr.IsPartial),
+		Pallet:          cr.Unit.Storage.Container,
 	}
 
 	e = u.Save()

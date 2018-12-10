@@ -12,6 +12,7 @@ import (
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/delivery/model"
+	model3 "git.qasico.com/gudang/api/src/inventory/model"
 	model2 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/user"
 )
@@ -82,20 +83,22 @@ func (ur *pickingRequest) Save() (u *model2.StockMovement, e error) {
 	}
 
 	u = &model2.StockMovement{
-		Unit:        ur.StockUnit,
-		Type:        "picking",
-		Status:      "start",
-		Quantity:    ur.Quantity,
-		IsPartial:   isPartial,
-		Origin:      ur.StockUnit.Storage.Location,
-		Destination: ur.Preparation.Location,
-		NewUnit:     newUnit,
-		CreatedBy:   ur.Session.User.(*user.User),
-		MovedBy:     ur.Session.User.(*user.User),
-		CreatedAt:   time.Now(),
-		StartedAt:   time.Now(),
-		RefID:       uint64(ur.Preparation.ID),
-		RefCode:     ur.Preparation.DocumentCode,
+		Unit:            ur.StockUnit,
+		Type:            "picking",
+		Status:          "start",
+		Quantity:        ur.Quantity,
+		IsPartial:       isPartial,
+		Origin:          ur.StockUnit.Storage.Location,
+		Destination:     ur.Preparation.Location,
+		NewUnit:         newUnit,
+		CreatedBy:       ur.Session.User.(*user.User),
+		MovedBy:         ur.Session.User.(*user.User),
+		CreatedAt:       time.Now(),
+		StartedAt:       time.Now(),
+		RefID:           uint64(ur.Preparation.ID),
+		RefCode:         ur.Preparation.DocumentCode,
+		IsNotFullPallet: int8(isPartial),
+		Pallet:          &model3.Item{ID: ur.StockUnit.Storage.Container.ID},
 	}
 
 	if e = u.Save(); e == nil {
