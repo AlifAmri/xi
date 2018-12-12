@@ -17,6 +17,7 @@ type Handler struct{}
 func (h *Handler) URLMapping(r *echo.Group) {
 	r.PUT("/:id/finish", h.finish, auth.Authorized(""))
 	r.PUT("/:id/delete", h.delete, auth.Authorized(""))
+	r.PUT("/:id/qc", h.qc, auth.Authorized(""))
 }
 
 func (h *Handler) finish(c echo.Context) (e error) {
@@ -38,6 +39,21 @@ func (h *Handler) delete(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
 	var ar deleteRequest
+	if ar.ID, e = ctx.Decrypt("id"); e == nil {
+		if ar.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&ar); e == nil {
+				e = ar.Save()
+			}
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) qc(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+
+	var ar qcRequest
 	if ar.ID, e = ctx.Decrypt("id"); e == nil {
 		if ar.Session, e = auth.RequestSession(ctx); e == nil {
 			if e = ctx.Bind(&ar); e == nil {
