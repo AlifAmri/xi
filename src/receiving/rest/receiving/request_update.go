@@ -12,6 +12,7 @@ import (
 	"git.qasico.com/gudang/api/src/receiving/services"
 	"git.qasico.com/gudang/api/src/user"
 
+	"fmt"
 	"git.qasico.com/cuxs/validation"
 )
 
@@ -50,9 +51,15 @@ func (ur *updateRequest) Validate() *validation.Output {
 	}
 
 	if len(ur.Items) > 0 {
+		var unitCode = make(map[string]bool)
 		for i, item := range ur.Items {
 			item.Validate(i, o)
 			ur.TotalQuantityPlan += item.Quantity
+			if unitCode[item.UnitCode] == true {
+				o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), "Terdapat duplikasi kode unit")
+			} else {
+				unitCode[item.UnitCode] = true
+			}
 		}
 	}
 
