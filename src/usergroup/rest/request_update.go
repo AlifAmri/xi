@@ -52,6 +52,7 @@ func (c *updateRequest) Update() (ug *usergroup.Usergroup, e error) {
 		removePrivilege(ug.ID)
 		// buat ulang privileges nya
 		createPrivilege(ug.ID, c.Privileges)
+		Sync(ug.ID)
 	}
 
 	return

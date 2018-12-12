@@ -8,6 +8,7 @@ import (
 	"git.qasico.com/gudang/api/src/usergroup"
 
 	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/gudang/api/src/auth"
 )
 
 // Show find a single data usergroup using field and value condition.
@@ -44,4 +45,19 @@ func Get(rq *orm.RequestQuery) (m *[]usergroup.Usergroup, total int64, err error
 
 	// return error some thing went wrong
 	return nil, total, err
+}
+
+// Sync usergroup priviledge to all user with the same user group
+func Sync(idUG int64) (err error) {
+	var tot int64
+	var usrID []int64
+	o := orm.NewOrm()
+	if tot, err = o.Raw("SELECT id FROM user where usergroup_id = ?", idUG).QueryRows(&usrID); err == nil && tot > int64(0) {
+		for _, id := range usrID {
+			o.Raw("DELETE FROM privilege_user where user_id = ?", id).Exec()
+			auth.SetPrivilege(id, idUG)
+		}
+	}
+
+	return
 }
