@@ -55,10 +55,12 @@ func (ur *updateRequest) Validate() *validation.Output {
 		for i, item := range ur.Items {
 			item.Validate(i, o)
 			ur.TotalQuantityPlan += item.Quantity
-			if unitCode[item.UnitCode] == true {
-				o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), "Terdapat duplikasi kode unit")
-			} else {
-				unitCode[item.UnitCode] = true
+			if item.UnitCode != "" {
+				if unitCode[item.UnitCode] == true {
+					o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), "Terdapat duplikasi kode unit")
+				} else {
+					unitCode[item.UnitCode] = true
+				}
 			}
 		}
 	}
