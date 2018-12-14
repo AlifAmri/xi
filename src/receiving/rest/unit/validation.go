@@ -145,7 +145,12 @@ func validPallet(ide string) (r *model3.Item, e error) {
 	return
 }
 func validReceivingUnit(id int64, s string) (r *model.ReceivingUnit, e error) {
-	e = orm.NewOrm().Raw("SELECT * FROM receiving_unit where id = ? and is_active = ?", id, 0).QueryRow(&r)
+	//e = orm.NewOrm().Raw("SELECT * FROM receiving_unit where id = ? and is_active = ?", id, 0).QueryRow(&r)
+	r = new(model.ReceivingUnit)
+	o := orm.NewOrm()
+	if e = o.QueryTable(r).Filter("id", id).Filter("is_active", 0).RelatedSel().Limit(1).One(r); e != nil {
+		return nil, e
+	}
 
 	return
 }

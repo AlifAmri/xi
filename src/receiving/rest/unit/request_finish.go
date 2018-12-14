@@ -6,6 +6,7 @@ package unit
 
 import (
 	"git.qasico.com/cuxs/cuxs/event"
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/inventory"
@@ -76,9 +77,17 @@ func createStockUnit(ru *model.ReceivingUnit) *model3.StockUnit {
 		CreatedBy:  ru.ApprovedBy,
 		ReceivedAt: ru.CreatedAt,
 	}
-
 	if ru.Unit != nil {
 		su.ID = ru.Unit.ID
+	} else {
+		var suID int64
+		orm.NewOrm().Raw("SELECT su.id FROM receiving_document rd "+
+			"INNER JOIN receiving r ON r.id = rd.receiving_id "+
+			"INNER JOIN stock_unit su ON su.id = rd.unit_id "+
+			"WHERE su.code = ? AND r.id = ?", ru.UnitCode, ru.Receiving.ID).QueryRow(&suID)
+		if suID != int64(0) {
+			su.ID = suID
+		}
 	}
 
 	su.GenerateCode("")

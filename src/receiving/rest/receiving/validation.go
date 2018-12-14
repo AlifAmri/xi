@@ -117,7 +117,9 @@ func validStockUnit(code string, i *model3.Item, b *model3.ItemBatch) (s *model4
 func validReceivingPlan(ide string) (rp *model.ReceivingDocument, e error) {
 	rp = new(model.ReceivingDocument)
 	if rp.ID, e = common.Decrypt(ide); e == nil {
-		e = rp.Read()
+		if e = rp.Read(); e == nil {
+			rp.Unit.Read("ID")
+		}
 	}
 
 	return
@@ -178,4 +180,30 @@ func validFinishReceiving(r *model.Receiving) bool {
 	o.Raw("SELECT count(*) FROM receiving_unit where receiving_id = ? and is_active = ?", r.ID, 1).QueryRow(&totalPendingUnits)
 
 	return totalPendingUnits == totalUnits
+}
+
+func validStockUnitUpdate(stockUnit string, receivingID int64) (e error) {
+	var total int64
+	var s *model4.StockUnit
+	o := orm.NewOrm()
+	o.Raw("SELECT * FROM stock_unit where code = ?", stockUnit).QueryRow(&s)
+	if s != nil {
+
+		// cek apakah stock content ada di penerimaan atau surat jalan dalam satu dokumen receiving
+		o.Raw("SELECT count(*) FROM receiving_unit ru "+
+			"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+			"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+			"WHERE su.code = ? AND r.id = ?", stockUnit, receivingID).QueryRow(&total)
+		if total == int64(0) {
+			o.Raw("SELECT count(*) FROM receiving_document rd "+
+				"INNER JOIN receiving r ON r.id = rd.receiving_id "+
+				"INNER JOIN stock_unit su ON su.id = rd.unit_id "+
+				"WHERE su.code = ? AND r.id = ?", stockUnit, receivingID).QueryRow(&total)
+			if total == int64(0) {
+				e = errors.New("not valid")
+			}
+		}
+	}
+
+	return
 }

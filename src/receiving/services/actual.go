@@ -67,7 +67,7 @@ func CreateActual(r *model.Receiving) {
 	o.Raw("DELETE FROM receiving_actual where receiving_id = ?", r.ID).Exec()
 
 	// recreate actual
-	o.LoadRelated(r, "Documents", 0)
+	o.LoadRelated(r, "Documents", 1)
 
 	for _, d := range r.Documents {
 		ra := &model.ReceivingActual{

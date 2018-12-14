@@ -5,6 +5,7 @@
 package unit
 
 import (
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/receiving/model"
@@ -33,5 +34,16 @@ func (cr *deleteRequest) Messages() map[string]string {
 }
 
 func (cr *deleteRequest) Save() (e error) {
-	return cr.ReceivingUnit.Delete()
+	e = cr.ReceivingUnit.Delete()
+	// hapus stock unit jika tipe draft dan tidak ada di receiving document
+	var tot int64
+	or := orm.NewOrm()
+	or.Raw("SELECT count(*) FROM receiving_document rd "+
+		"INNER JOIN receiving r ON r.id = rd.receiving_id "+
+		"INNER JOIN stock_unit su ON su.id = rd.unit_id "+
+		"WHERE su.code = ? AND r.id = ?", cr.ReceivingUnit.UnitCode, cr.ReceivingUnit.Receiving.ID).QueryRow(&tot)
+	if tot == int64(0) {
+		or.Raw("DELETE FROM stock_unit  WHERE code = ? AND status = ?", cr.ReceivingUnit.UnitCode, "draft").Exec()
+	}
+	return
 }

@@ -11,6 +11,7 @@ import (
 	"git.qasico.com/gudang/api/src/receiving/model"
 	ModelStock "git.qasico.com/gudang/api/src/stock/model"
 
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 )
 
@@ -28,7 +29,7 @@ type item struct {
 	IsNewItem         int8                      `json:"-"`
 }
 
-func (rp *item) Validate(index int, o *validation.Output) {
+func (rp *item) Validate(index int, rID int64, o *validation.Output) {
 	var e error
 
 	if rp.ItemCode != "" {
@@ -48,8 +49,12 @@ func (rp *item) Validate(index int, o *validation.Output) {
 	}
 
 	if rp.ItemBatch != nil && rp.UnitCode != "" {
-		if rp.StockUnit, e = validStockUnit(rp.UnitCode, rp.Item, rp.ItemBatch); e != nil {
+		if e = validStockUnitUpdate(rp.UnitCode, rID); e != nil {
 			o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", index), errInvalidUnitCode)
+		} else {
+			if rp.StockUnit, e = validStockUnit(rp.UnitCode, rp.Item, rp.ItemBatch); e != nil {
+				o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", index), errInvalidUnitCode)
+			}
 		}
 	}
 
@@ -77,6 +82,18 @@ func (rp *item) Save(r *model.Receiving) *model.ReceivingDocument {
 	if rp.ReceivingDocument != nil {
 		rpp.ID = rp.ReceivingDocument.ID
 		rpp.IsNew = rp.ReceivingDocument.IsNew
+		//kalau stock unit di update menjadi null, maka hapus stock unit yang belum ada di receiving unit dan draft
+		if rpp.Unit == nil && rp.ReceivingDocument.Unit != nil {
+			var tot int64
+			or := orm.NewOrm()
+			or.Raw("SELECT count(*) FROM receiving_unit ru "+
+				"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+				"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+				"WHERE su.code = ? AND r.id = ?", rp.ReceivingDocument.Unit.Code, r.ID).QueryRow(&tot)
+			if tot == int64(0) {
+				or.Raw("DELETE FROM stock_unit  WHERE id = ? AND status = ?", rp.ReceivingDocument.Unit.Code, "draft").Exec()
+			}
+		}
 	}
 
 	rpp.Save()

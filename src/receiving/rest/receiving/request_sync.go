@@ -37,7 +37,7 @@ func (cr *syncRequest) Validate() *validation.Output {
 		}
 	}
 
-	if cr.ReceiptPlan != nil {
+	if cr.ReceiptPlan != nil && cr.Receiving != nil {
 		orm.NewOrm().LoadRelated(cr.ReceiptPlan, "Items", 0)
 		if cr.ReceiptPlan.Items != nil {
 			for n, i := range cr.ReceiptPlan.Items {
@@ -48,7 +48,7 @@ func (cr *syncRequest) Validate() *validation.Output {
 					Quantity:  i.Quantity,
 				}
 
-				i.Validate(n, o)
+				i.Validate(n, cr.Receiving.ID, o)
 
 				cr.TotalQuantityPlan += i.Quantity
 				cr.Items = append(cr.Items, i)

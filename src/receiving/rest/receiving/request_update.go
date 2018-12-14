@@ -49,17 +49,33 @@ func (ur *updateRequest) Validate() *validation.Output {
 			o.Failure("partner_id.invalid", errInvalidPartner)
 		}
 	}
-
-	if len(ur.Items) > 0 {
-		var unitCode = make(map[string]bool)
-		for i, item := range ur.Items {
-			item.Validate(i, o)
-			ur.TotalQuantityPlan += item.Quantity
-			if item.UnitCode != "" {
-				if unitCode[item.UnitCode] == true {
-					o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), "Terdapat duplikasi kode unit")
-				} else {
-					unitCode[item.UnitCode] = true
+	if ur.Receiving != nil && o.Valid && ur.DocumentCode != "" {
+		if len(ur.Items) > 0 {
+			var unitCode = make(map[string]bool)
+			for i, item := range ur.Items {
+				item.Validate(i, ur.Receiving.ID, o)
+				ur.TotalQuantityPlan += item.Quantity
+				if item.UnitCode != "" {
+					if unitCode[item.UnitCode] == true {
+						o.Failure(fmt.Sprintf("items.%d.unit_code.invalid", i), "Terdapat duplikasi kode unit")
+					} else {
+						unitCode[item.UnitCode] = true
+					}
+				}
+			}
+			// jika terdapat error pada item, hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di receiving unit)
+			if o.Valid == false {
+				for _, itm := range ur.Items {
+					if itm.StockUnit != nil {
+						var tot int64
+						orm.NewOrm().Raw("SELECT count(*) FROM receiving_unit ru "+
+							"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+							"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+							"WHERE su.code = ? AND r.id = ?", itm.StockUnit.Code, ur.Receiving.ID).QueryRow(&tot)
+						if tot == int64(0) {
+							orm.NewOrm().Raw("DELETE FROM stock_unit WHERE code = ? AND status = ?", itm.StockUnit.Code, "draft").Exec()
+						}
+					}
 				}
 			}
 		}
@@ -85,7 +101,7 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 	ur.Receiving.TotalQuantityPlan = ur.TotalQuantityPlan
 
 	if e = ur.Receiving.Save("document_code", "note", "partner_id", "document_file", "supervisor_id", "total_quantity_plan"); e == nil {
-		orm.NewOrm().LoadRelated(ur.Receiving, "Documents", 0)
+		orm.NewOrm().LoadRelated(ur.Receiving, "Documents", 1)
 
 		for _, item := range ur.Items {
 			item.Save(ur.Receiving)
@@ -102,6 +118,17 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 				}
 
 				if !used {
+					or := orm.NewOrm()
+					var tot int64
+					// hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di receiving unit)
+					or.Raw("SELECT count(*) FROM receiving_unit ru "+
+						"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+						"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+						"WHERE su.code = ? AND r.id = ?", document.Unit.Code, ur.Receiving.ID).QueryRow(&tot)
+					if tot == int64(0) {
+						or.Raw("DELETE FROM stock_unit  WHERE id = ? AND status = ?", document.Unit.ID, "draft").Exec()
+					}
+
 					document.Delete()
 				}
 			}
