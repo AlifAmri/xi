@@ -91,7 +91,7 @@ func (rp *item) Save(r *model.Receiving) *model.ReceivingDocument {
 				"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
 				"WHERE su.code = ? AND r.id = ?", rp.ReceivingDocument.Unit.Code, r.ID).QueryRow(&tot)
 			if tot == int64(0) {
-				or.Raw("DELETE FROM stock_unit  WHERE id = ? AND status = ?", rp.ReceivingDocument.Unit.Code, "draft").Exec()
+				or.Raw("DELETE FROM stock_unit  WHERE code = ? AND status = ?", rp.ReceivingDocument.Unit.Code, "draft").Exec()
 			}
 		}
 	}
