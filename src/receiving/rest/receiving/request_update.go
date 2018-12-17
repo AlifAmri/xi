@@ -127,7 +127,7 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 						"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
 						"WHERE su.code = ? AND r.id = ?", document.Unit.Code, ur.Receiving.ID).QueryRow(&tot)
 					if tot == int64(0) {
-						or.Raw("DELETE FROM stock_unit  WHERE id = ? AND status = ?", document.Unit.ID, "draft").Exec()
+						or.Raw("DELETE FROM stock_unit  WHERE code = ? AND status = ? ", document.Unit.Code, "draft").Exec()
 					}
 
 					document.Delete()
