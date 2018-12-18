@@ -42,6 +42,15 @@ func (ur *updateRequest) Validate() *validation.Output {
 		}
 	}
 
+	// validasi lokasi harus kosong jika mau mengganti area
+	if ur.Location != nil && ur.Area != nil {
+		if ur.Area.ID != ur.Location.Area.ID {
+			if validLocationEmpty(ur.Location.ID) {
+				o.Failure("area_id.invalid", errInvalidLocationArea)
+			}
+		}
+	}
+
 	if ur.Code != "" && ur.Area != nil && !validCode(ur.Code, ur.Area.ID, ur.Location.ID) {
 		o.Failure("code.unique", errUniqueCode)
 	}
@@ -70,6 +79,7 @@ func (ur *updateRequest) Save() (u *warehouse.Location, e error) {
 	ur.Location.CoordinateW = ur.CordW
 	ur.Location.CoordinateH = ur.CordH
 	ur.Location.StorageCapacity = ur.StorageCapacity
+	ur.Location.Area = ur.Area
 
 	e = ur.Location.Save()
 

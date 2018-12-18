@@ -12,21 +12,32 @@ import (
 )
 
 var (
-	errRequiredCode     = "Kode lokasi harus diisi"
-	errRequiredName     = "Nama lokasi harus diisi"
-	errRequiredArea     = "Area harus dipilih"
-	errRequiredCordX    = "Titik X harus diisi"
-	errRequiredCordY    = "Titik Y harus diisi"
-	errRequiredCordW    = "Lebar Titik harus diisi"
-	errRequiredCordH    = "Tinggi Titik harus diisi"
-	errRequiredCapacity = "Kapasitas lokasi harus diisi"
-	errUniqueCode       = "Kode lokasi tersebut telah digunakan"
-	errInvalidLocation  = "Lokasi tidak dapat ditemukan"
-	errInvalidArea      = "Area tidak dapat ditemukan"
-	errAlreadyActived   = "Status area sudah aktif"
-	errAlreadyDeactived = "Status area sudah tidak aktif"
-	errCascadeID        = "Lokasi tidak dapat dihapus"
+	errRequiredCode        = "Kode lokasi harus diisi"
+	errRequiredName        = "Nama lokasi harus diisi"
+	errRequiredArea        = "Area harus dipilih"
+	errRequiredCordX       = "Titik X harus diisi"
+	errRequiredCordY       = "Titik Y harus diisi"
+	errRequiredCordW       = "Lebar Titik harus diisi"
+	errRequiredCordH       = "Tinggi Titik harus diisi"
+	errRequiredCapacity    = "Kapasitas lokasi harus diisi"
+	errUniqueCode          = "Kode lokasi tersebut telah digunakan"
+	errInvalidLocation     = "Lokasi tidak dapat ditemukan"
+	errInvalidArea         = "Area tidak dapat ditemukan"
+	errAlreadyActived      = "Status area sudah aktif"
+	errAlreadyDeactived    = "Status area sudah tidak aktif"
+	errCascadeID           = "Lokasi tidak dapat dihapus"
+	errInvalidLocationArea = "Area di lokasi ini tidak dapat diganti"
 )
+
+func validLocationEmpty(locationID int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_unit su "+
+		"INNER JOIN stock_storage ss ON ss.id = su.storage_id "+
+		"INNER JOIN warehouse_location wl ON wl.id = ss.location_id "+
+		"WHERE wl.id = ? AND su.status = ? ", locationID, "stored").QueryRow(&total)
+
+	return total == int64(0)
+}
 
 func validCode(code string, areaID int64, exclude int64) bool {
 	var total int64
