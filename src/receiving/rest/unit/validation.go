@@ -93,9 +93,17 @@ func validItemCode(code string) bool {
 }
 
 func countLocationMoved(id int64) (total int) {
-	orm.NewOrm().Raw("SELECT count(location_moved) FROM receiving_unit where location_moved = ?", id).QueryRow(&total)
+	orm.NewOrm().Raw("SELECT count(distinct ss.id) FROM stock_storage ss" +
+		"	inner join stock_unit su on su.storage_id = ss.id" +
+		"	where ss.location_id = ? and su.status = ?", id,"stored").QueryRow(&total)
 	return
 }
+
+func countMovement(id int64) (total int) {
+	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0,"finished").QueryRow(&total)
+	return
+}
+
 func validUnitCode(code string, exclude int64, rp *model.Receiving) (r *model2.StockUnit, e error) {
 	var total int64
 	o := orm.NewOrm()
