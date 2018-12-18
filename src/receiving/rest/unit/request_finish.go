@@ -38,8 +38,13 @@ func (cr *finishRequest) Validate() *validation.Output {
 	if cr.LocationID != "" {
 		if cr.Location, e = validLocation(cr.LocationID); e != nil {
 			o.Failure("location_id.invalid", errInvalidLocation)
+		}else{
+			if (countLocationMoved(cr.Location.ID) > cr.Location.StorageCapacity){
+				o.Failure("location_id.invalid",errLocationFull)
+			}		
 		}
 	}
+
 
 	return o
 }

@@ -35,6 +35,7 @@ var (
 	errInvalidLocation      = "Lokasi tidak valid"
 	errInvalidBatchCode     = "Format kode batch tidak valid"
 	errInvalidItemCode      = "Kode tidak ditemukan atau tidak aktif"
+	errLocationFull 		= "Lokasi sudah Full"
 )
 
 func validBatchCode(code string) (c string, e error) {
@@ -91,6 +92,10 @@ func validItemCode(code string) bool {
 	return total == 1
 }
 
+func countLocationMoved(id int64) (total int) {
+	orm.NewOrm().Raw("SELECT count(location_moved) FROM receiving_unit where location_moved = ?", id).QueryRow(&total)
+	return
+}
 func validUnitCode(code string, exclude int64, rp *model.Receiving) (r *model2.StockUnit, e error) {
 	var total int64
 	o := orm.NewOrm()
