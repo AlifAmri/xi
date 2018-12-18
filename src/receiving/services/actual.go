@@ -15,42 +15,47 @@ func CalculateActualFromUnit(ru *model.ReceivingUnit) {
 	o.LoadRelated(ru.Receiving, "Actuals", 1)
 
 	var updated bool
+	// loop actual untuk mencari item yang sama dengan receiving unit (item,batch dan unit yang sama)
 	for _, d := range ru.Receiving.Actuals {
 		if d.Batch != nil && d.Item.ID == ru.Unit.Item.ID && d.Batch.ID == ru.Unit.Batch.ID {
-			if ru.IsNcp == 1 {
-				d.QuantityDefect += ru.Quantity
-			}
-
-			d.QuantityReceived += ru.Quantity
-
-			d.Save("quantity_defect", "quantity_received")
-			updated = true
-		}
-	}
-
-	if !updated {
-		for _, d := range ru.Receiving.Actuals {
-			if !updated && d.Batch == nil {
-				if d.Item.ID == ru.Unit.Item.ID {
-					if ru.IsNcp == 1 {
-						d.QuantityDefect += ru.Quantity
-					}
-
-					d.QuantityReceived += ru.Quantity
-
-					d.Save("quantity_defect", "quantity_received")
-					updated = true
+			if d.Unit != nil && d.Unit.Code == ru.UnitCode {
+				if ru.IsNcp == 1 {
+					d.QuantityDefect += ru.Quantity
 				}
+
+				d.QuantityReceived += ru.Quantity
+
+				d.Save("quantity_defect", "quantity_received")
+				updated = true
 			}
 		}
 	}
 
+	//if !updated {
+	//	for _, d := range ru.Receiving.Actuals {
+	//		if !updated && d.Batch == nil {
+	//			if d.Item.ID == ru.Unit.Item.ID {
+	//				if ru.IsNcp == 1 {
+	//					d.QuantityDefect += ru.Quantity
+	//				}
+	//
+	//				d.QuantityReceived += ru.Quantity
+	//
+	//				d.Save("quantity_defect", "quantity_received")
+	//				updated = true
+	//			}
+	//		}
+	//	}
+	//}
+
+	// jika tidak terdapat actual yang match dengan unit,
 	if !updated {
 		ra := &model.ReceivingActual{
 			Receiving:        ru.Receiving,
 			Item:             ru.Unit.Item,
 			Batch:            ru.Unit.Batch,
 			QuantityReceived: ru.Quantity,
+			Unit:             ru.Unit,
 		}
 		if ru.IsNcp == 1 {
 			ra.QuantityDefect = ru.Quantity
@@ -76,11 +81,13 @@ func CreateActual(r *model.Receiving) {
 			Batch:           d.Batch,
 			QuantityPlanned: d.Quantity,
 		}
-
+		if d.Unit != nil {
+			ra.Unit = d.Unit
+		}
 		ra.Save()
 	}
 
-	o.LoadRelated(r, "Units", 1)
+	o.LoadRelated(r, "Units", 2)
 
 	for _, u := range r.Units {
 		if u.Unit != nil {
