@@ -42,6 +42,7 @@ type DeliveryOrder struct {
 	Tire4W  float64        `orm:"-" json:"total_tire_4w"`
 	Tire2W  float64        `orm:"-" json:"total_tire_2w"`
 	Counter string         `orm:"-" json:"counter_print"`
+	Logo string			   `orm:"-" json:"logo"`
 	Items   []*Preparation `orm:"reverse(many)" json:"items,omitempty"`
 }
 
