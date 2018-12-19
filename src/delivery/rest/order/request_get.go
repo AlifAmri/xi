@@ -30,10 +30,15 @@ func ShowPrint(id int64) (*model.DeliveryOrder, error) {
 	if err := o.QueryTable(m).Filter("id", id).RelatedSel().Limit(1).One(m); err != nil {
 		return nil, err
 	}
+	getLogo(m)
 	counterPrint(m)
 	o.LoadRelated(m, "Items", 1)
 	tireGroup(m)
 	return m, nil
+}
+
+func getLogo(m *model.DeliveryOrder){
+	orm.NewOrm().Raw("select value from app_config where attribute = ?","logo").QueryRow(&m.Logo)
 }
 
 // counterPrint create counter for numeric print delivery order, each print will do increment for counter

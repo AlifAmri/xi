@@ -10,6 +10,7 @@ import (
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/delivery/model"
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
+	"git.qasico.com/gudang/api/src/user"
 )
 
 type updateRequest struct {
@@ -18,11 +19,18 @@ type updateRequest struct {
 	NumberContainer string  `json:"number_container"`
 	NumberSeal      string  `json:"number_seal"`
 	Note            string  `json:"note"`
+	CheckerID       string  `json:"checker_id"`
+	SupplyID        string  `json:"supply_id"`
+	DocLoc          string  `json:"docloc"`
+
 	Items           []*item `json:"items" valid:"required"`
 
 	Session       *auth.SessionData    `json:"-"`
 	DeliveryOrder *model.DeliveryOrder `json:"-"`
 	Partner       *model2.Partnership  `json:"-"`
+	Supply		  *user.User        	`json:"-"`
+	Chekcer		  *user.User        	`json:"-"`
+
 }
 
 func (ur *updateRequest) Validate() *validation.Output {
@@ -39,6 +47,16 @@ func (ur *updateRequest) Validate() *validation.Output {
 		}
 	}
 
+	if ur.SupplyID != "" {
+		if ur.Supply, e = validUser(ur.SupplyID); e != nil {
+			o.Failure("supply_id.invalid", errInvalidPartner)
+		}
+	}
+	if ur.CheckerID != "" {
+		if ur.Chekcer, e = validUser(ur.CheckerID); e != nil {
+			o.Failure("checker_id.invalid", errInvalidPartner)
+		}
+	}
 	if len(ur.Items) > 0 && ur.DeliveryOrder != nil {
 		for i, item := range ur.Items {
 			item.Validate(i, o, ur.DeliveryOrder)
@@ -61,8 +79,11 @@ func (ur *updateRequest) Save() (u *model.DeliveryOrder, e error) {
 	u.NumberContainer = ur.NumberContainer
 	u.NumberSeal = ur.NumberSeal
 	u.Note = ur.Note
+	u.Supply = ur.Supply
+	u.Checker = ur.Chekcer
+	u.DocLoc = ur.DocLoc
 
-	if e = u.Save("partner_id", "number_container", "number_seal", "note"); e == nil {
+	if e = u.Save("partner_id", "number_container", "number_seal", "note","supply_id","checker_id","docloc"); e == nil {
 		orm.NewOrm().LoadRelated(ur.DeliveryOrder, "Items", 0)
 
 		for _, item := range ur.Items {

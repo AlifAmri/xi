@@ -11,6 +11,7 @@ import (
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/src/delivery/model"
 	model2 "git.qasico.com/gudang/api/src/partnership/model"
+	"git.qasico.com/gudang/api/src/user"
 )
 
 var (
@@ -33,6 +34,13 @@ func validPartner(ide string) (rp *model2.Partnership, e error) {
 		e = rp.Read()
 	}
 
+	return
+}
+func validUser(id string) (u *user.User, e error) {
+	u = new(user.User)
+	if u.ID, e = common.Decrypt(id); e == nil {
+		e = u.Read()
+	}
 	return
 }
 
