@@ -118,7 +118,9 @@ func validReceivingPlan(ide string) (rp *model.ReceivingDocument, e error) {
 	rp = new(model.ReceivingDocument)
 	if rp.ID, e = common.Decrypt(ide); e == nil {
 		if e = rp.Read(); e == nil {
-			rp.Unit.Read("ID")
+			if rp.Unit != nil {
+				rp.Unit.Read("ID")
+			}
 		}
 	}
 
