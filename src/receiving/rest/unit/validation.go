@@ -94,13 +94,13 @@ func validItemCode(code string) bool {
 
 func countLocationMoved(id int64) (total int) {
 	orm.NewOrm().Raw("SELECT count(distinct ss.id) FROM stock_storage ss" +
-		"	inner join stock_unit su on su.storage_id = ss.id" +
-		"	where ss.location_id = ? and su.status = ?", id,"stored").QueryRow(&total)
+		" inner join stock_unit su on su.storage_id = ss.id" +
+		" where ss.location_id = ? and su.status = ?", id,"stored").QueryRow(&total)
 	return
 }
 
 func countMovement(id int64) (total int) {
-	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0,"finished").QueryRow(&total)
+	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0,"finish").QueryRow(&total)
 	return
 }
 
