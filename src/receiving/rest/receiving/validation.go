@@ -209,3 +209,37 @@ func validStockUnitUpdate(stockUnit string, receivingID int64) (e error) {
 
 	return
 }
+
+// removeStockUnit, hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di receiving unit)
+func removeStockUnit(stockUnit string, receivingID int64) {
+	var tot int64
+	orm.NewOrm().Raw("SELECT count(*) FROM receiving_unit ru "+
+		"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+		"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+		"WHERE su.code = ? AND r.id = ?", stockUnit, receivingID).QueryRow(&tot)
+	if tot == int64(0) {
+		orm.NewOrm().Raw("DELETE FROM stock_unit WHERE code = ? AND status = ?", stockUnit, "draft").Exec()
+	}
+}
+
+// removeStockUnitError, hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di stockopname,receiving unit dan di surat jalan lain)
+func removeStockUnitError(stockUnit string) {
+	var total1, total2, total3 int64
+	o := orm.NewOrm()
+	o.Raw("SELECT count(*) FROM receiving_unit ru "+
+		"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
+		"WHERE su.code = ? ", stockUnit).QueryRow(&total1)
+
+	o.Raw("SELECT count(*) FROM receiving_document rd "+
+		"INNER JOIN stock_unit su ON su.id = rd.unit_id "+
+		"WHERE su.code = ? ", stockUnit).QueryRow(&total2)
+
+	o.Raw("SELECT count(*) FROM stock_opname_item soi "+
+		"INNER JOIN stock_unit su ON su.id = soi.unit_id "+
+		"INNER JOIN stock_opname so ON so.id = soi.stock_opname_id "+
+		"WHERE su.code = ? AND so.status != ? ", stockUnit, "cancelled").QueryRow(&total3)
+
+	if total1 == int64(0) && total2 == int64(0) && total3 == int64(0) {
+		orm.NewOrm().Raw("DELETE FROM stock_unit WHERE code = ? AND status = ?", stockUnit, "draft").Exec()
+	}
+}
