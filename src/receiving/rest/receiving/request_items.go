@@ -11,7 +11,6 @@ import (
 	"git.qasico.com/gudang/api/src/receiving/model"
 	ModelStock "git.qasico.com/gudang/api/src/stock/model"
 
-	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 )
 
