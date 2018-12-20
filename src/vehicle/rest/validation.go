@@ -19,14 +19,24 @@ var (
 	errRequiredPicture       = "foto id driver harus diisi"
 	errInvalidID             = "kedatangan kendaraan tidak ditemukan"
 	errSubconInvalid         = "subcon tidak ditemukan"
+	errCancelInvalid         = "Dokumen harus status DALAM ANTRIAN"
 )
 
 func validID(id int64) bool {
 	var total int64
-	orm.NewOrm().Raw("SELECT count(*) FROM incoming_vehicle where id = ? and status = ?", id, "in_progress").QueryRow(&total)
+	orm.NewOrm().Raw("SELECT count(*) FROM incoming_vehicle where id = ? and status = ?", id, "in_queue").QueryRow(&total)
 
 	return total == 1
 }
+
+func validCancel(id int64, status string) (m *model.IncomingVehicle, e error) {
+	o := orm.NewOrm()
+
+	e = o.Raw("SELECT * FROM incoming_vehicle where id = ? and status = ?", id, status).QueryRow(&m)
+
+	return
+}
+
 
 func validVehicle(id int64) (i *model.IncomingVehicle, e error) {
 	i = &model.IncomingVehicle{ID: id}

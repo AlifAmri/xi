@@ -37,6 +37,7 @@ func createDeliveryOrder(iv *model.IncomingVehicle) {
 		Vehicle:   iv,
 		Status:    "active",
 		CreatedAt: time.Now(),
+		IsActive:1,
 	}
 
 	r.Save()

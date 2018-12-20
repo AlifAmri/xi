@@ -40,6 +40,7 @@ type Receiving struct {
 	ReceivedAt          time.Time              `orm:"column(received_at);type(timestamp);null" json:"received_at"`
 	StartedAt           time.Time              `orm:"column(started_at);type(timestamp);null" json:"started_at"`
 	FinishedAt          time.Time              `orm:"column(finished_at);type(timestamp);null" json:"finished_at"`
+	IsActive            int8                   `orm:"column(is_active);null" json:"is_active"`
 
 	Documents []*ReceivingDocument `orm:"reverse(many)" json:"documents,omitempty"`
 	Actuals   []*ReceivingActual   `orm:"reverse(many)" json:"actuals,omitempty"`
