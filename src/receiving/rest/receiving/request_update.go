@@ -64,18 +64,11 @@ func (ur *updateRequest) Validate() *validation.Output {
 					}
 				}
 			}
-			// jika terdapat error pada item, hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di receiving unit)
+			// jika terdapat error pada item, hapus stock unit draft yang baru dibuat (tidak dihapus jika ada di receiving unit dan surat jalan)
 			if o.Valid == false {
 				for _, itm := range ur.Items {
 					if itm.StockUnit != nil {
-						var tot int64
-						orm.NewOrm().Raw("SELECT count(*) FROM receiving_unit ru "+
-							"INNER JOIN receiving r ON r.id = ru.receiving_id "+
-							"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
-							"WHERE su.code = ? AND r.id = ?", itm.StockUnit.Code, ur.Receiving.ID).QueryRow(&tot)
-						if tot == int64(0) {
-							orm.NewOrm().Raw("DELETE FROM stock_unit WHERE code = ? AND status = ?", itm.StockUnit.Code, "draft").Exec()
-						}
+						removeStockUnitError(itm.StockUnit.Code)
 					}
 				}
 			}
@@ -120,13 +113,17 @@ func (ur *updateRequest) Save() (u *model.Receiving, e error) {
 
 				if !used {
 					or := orm.NewOrm()
-					var tot int64
+					var tot, tot2 int64
 					// hapus stock unit draft yang sudah dibuat (tidak dihapus jika ada di receiving unit)
 					or.Raw("SELECT count(*) FROM receiving_unit ru "+
 						"INNER JOIN receiving r ON r.id = ru.receiving_id "+
 						"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
 						"WHERE su.code = ? AND r.id = ?", document.Unit.Code, ur.Receiving.ID).QueryRow(&tot)
-					if tot == int64(0) {
+					or.Raw("SELECT count(*) FROM receiving_document rd "+
+						"INNER JOIN receiving r ON r.id = rd.receiving_id "+
+						"INNER JOIN stock_unit su ON su.id = rd.unit_id "+
+						"WHERE su.code = ? AND r.id = ?", document.Unit.Code, ur.Receiving.ID).QueryRow(&tot2)
+					if tot == int64(0) && tot2 == int64(0) {
 						or.Raw("DELETE FROM stock_unit  WHERE code = ? AND status = ? ", document.Unit.Code, "draft").Exec()
 					}
 
