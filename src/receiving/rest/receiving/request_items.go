@@ -81,16 +81,15 @@ func (rp *item) Save(r *model.Receiving) *model.ReceivingDocument {
 	if rp.ReceivingDocument != nil {
 		rpp.ID = rp.ReceivingDocument.ID
 		rpp.IsNew = rp.ReceivingDocument.IsNew
-		//kalau stock unit di update menjadi null, maka hapus stock unit yang belum ada di receiving unit dan draft
+
+		//kalau stock unit di update menjadi null, maka hapus stock unit lama yang belum ada di receiving unit dan draft
 		if rpp.Unit == nil && rp.ReceivingDocument.Unit != nil {
-			var tot int64
-			or := orm.NewOrm()
-			or.Raw("SELECT count(*) FROM receiving_unit ru "+
-				"INNER JOIN receiving r ON r.id = ru.receiving_id "+
-				"INNER JOIN stock_unit su ON su.id = ru.unit_id "+
-				"WHERE su.code = ? AND r.id = ?", rp.ReceivingDocument.Unit.Code, r.ID).QueryRow(&tot)
-			if tot == int64(0) {
-				or.Raw("DELETE FROM stock_unit  WHERE code = ? AND status = ?", rp.ReceivingDocument.Unit.Code, "draft").Exec()
+			removeStockUnit(rp.ReceivingDocument.Unit.Code, r.ID)
+		}
+		//kalau stock unit di update menjadi yang lain, maka hapus stock unit lama yang belum ada di receiving unit dan draft
+		if rpp.Unit != nil && rp.ReceivingDocument.Unit != nil {
+			if rpp.Unit.ID != rp.ReceivingDocument.Unit.ID {
+				removeStockUnit(rp.ReceivingDocument.Unit.Code, r.ID)
 			}
 		}
 	}
