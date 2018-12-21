@@ -5,17 +5,17 @@
 package rest
 
 import (
+	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/vehicle/model"
-	"git.qasico.com/cuxs/validation"
-	"git.qasico.com/cuxs/orm"
 )
 
 type cancelRequest struct {
 	ID int64 `json:"-" valid:"required"`
 
-	Vehicle 	  *model.IncomingVehicle `json:"-"`
-	Session       *auth.SessionData    `json:"-"`
+	Vehicle *model.IncomingVehicle `json:"-"`
+	Session *auth.SessionData      `json:"-"`
 }
 
 func (cr *cancelRequest) Validate() *validation.Output {
@@ -37,14 +37,14 @@ func (cr *cancelRequest) Save() (e error) {
 	u := cr.Vehicle
 	o := orm.NewOrm()
 	u.Status = "cancelled"
-	if e = u.Save( "status"); e == nil {
-				if u.Purpose == "receiving"{
-				_, e = o.Raw("update receiving set is_active = ? where vehicle_id = ?",0,u.ID ).Exec()
-			}
+	if e = u.Save("status"); e == nil {
+		if u.Purpose == "receiving" {
+			_, e = o.Raw("update receiving set is_active = ? where vehicle_id = ?", 0, u.ID).Exec()
+		}
 
-			if u.Purpose == "dispatching"{
-				_, e = o.Raw("update delivery_order set is_active = ? where vehicle_id = ?",0,u.ID ).Exec()
-			}
+		if u.Purpose == "dispatching" {
+			_, e = o.Raw("update delivery_order set is_active = ? where vehicle_id = ?", 0, u.ID).Exec()
+		}
 	}
 
 	return
