@@ -20,6 +20,8 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.GET("/:id", h.detail, auth.Authorized(""))
 	r.PUT("/:id", h.update, auth.Authorized(""))
 	r.PUT("/:id/out", h.out, auth.Authorized(""))
+	r.PUT("/:id/cancel", h.cancel, auth.Authorized(""))
+
 }
 
 func (h *Handler) get(c echo.Context) (e error) {
@@ -82,6 +84,21 @@ func (h *Handler) out(c echo.Context) (e error) {
 		if dr.Session, e = auth.RequestSession(ctx); e == nil {
 			if e = ctx.Bind(&dr); e == nil {
 				e = dr.Save()
+			}
+		}
+	}
+
+	return ctx.Serve(e)
+}
+
+func (h *Handler) cancel(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+	var ar cancelRequest
+	if ar.ID, e = ctx.Decrypt("id"); e == nil {
+
+		if ar.Session, e = auth.RequestSession(ctx); e == nil {
+			if e = ctx.Bind(&ar); e == nil {
+				e = ar.Save()
 			}
 		}
 	}

@@ -30,7 +30,6 @@ func (h *Handler) URLMapping(r *echo.Group) {
 
 func (h *Handler) get(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
-
 	data, total, e := Get(ctx.RequestQuery())
 	if e == nil {
 		ctx.Data(data, total)

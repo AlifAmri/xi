@@ -38,6 +38,7 @@ type DeliveryOrder struct {
 	Checker         *user.User             `orm:"column(checker_id);null;rel(fk)" json:"checker_id"`
 	DocLoc          string                 `orm:"column(docloc);null" json:"docloc"`
 	CreatedAt       time.Time              `orm:"column(created_at);type(timestamp);null" json:"created_at"`
+	IsActive            int8                   `orm:"column(is_active);null" json:"is_active"`
 
 	Tire4W  float64        `orm:"-" json:"total_tire_4w"`
 	Tire2W  float64        `orm:"-" json:"total_tire_2w"`
