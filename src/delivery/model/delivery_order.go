@@ -34,7 +34,7 @@ type DeliveryOrder struct {
 	Status          string                 `orm:"column(status);options(active,finish)" json:"status"`
 	Note            string                 `orm:"column(note);null" json:"note"`
 	CreatedBy       *user.User             `orm:"column(created_by);null;rel(fk)" json:"created_by"`
-	Supply          *user.User    	       `orm:"column(supply_id);null;rel(fk)" json:"supply_id"`
+	Supply          *user.User             `orm:"column(supply_id);null;rel(fk)" json:"supply_id"`
 	Checker         *user.User             `orm:"column(checker_id);null;rel(fk)" json:"checker_id"`
 	DocLoc          string                 `orm:"column(docloc);null" json:"docloc"`
 	CreatedAt       time.Time              `orm:"column(created_at);type(timestamp);null" json:"created_at"`
@@ -43,7 +43,7 @@ type DeliveryOrder struct {
 	Tire4W  float64        `orm:"-" json:"total_tire_4w"`
 	Tire2W  float64        `orm:"-" json:"total_tire_2w"`
 	Counter string         `orm:"-" json:"counter_print"`
-	Logo string			   `orm:"-" json:"logo"`
+	Logo    string         `orm:"-" json:"logo"`
 	Items   []*Preparation `orm:"reverse(many)" json:"items,omitempty"`
 }
 

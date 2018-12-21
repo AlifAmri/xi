@@ -37,8 +37,8 @@ func ShowPrint(id int64) (*model.DeliveryOrder, error) {
 	return m, nil
 }
 
-func getLogo(m *model.DeliveryOrder){
-	orm.NewOrm().Raw("select value from app_config where attribute = ?","logo").QueryRow(&m.Logo)
+func getLogo(m *model.DeliveryOrder) {
+	orm.NewOrm().Raw("select value from app_config where attribute = ?", "logo").QueryRow(&m.Logo)
 }
 
 // counterPrint create counter for numeric print delivery order, each print will do increment for counter

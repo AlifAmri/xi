@@ -45,7 +45,19 @@ func (ur *updateRequest) Validate() *validation.Output {
 	// validasi lokasi harus kosong jika mau mengganti area
 	if ur.Location != nil && ur.Area != nil {
 		if ur.Area.ID != ur.Location.Area.ID {
-			if validLocationEmpty(ur.Location.ID) {
+			if !validLocationEmpty(ur.Location.ID) {
+				o.Failure("area_id.invalid", errInvalidLocationArea)
+			}
+			if !validMovementLocation(ur.Location.ID) {
+				o.Failure("area_id.invalid", errInvalidLocationArea)
+			}
+			if !validStockopnameLocation(ur.Location.ID) {
+				o.Failure("area_id.invalid", errInvalidLocationArea)
+			}
+			if !validPreparationLocation(ur.Location.ID) {
+				o.Failure("area_id.invalid", errInvalidLocationArea)
+			}
+			if !validReceivingLocation(ur.Location.ID) {
 				o.Failure("area_id.invalid", errInvalidLocationArea)
 			}
 		}

@@ -39,6 +39,43 @@ func validLocationEmpty(locationID int64) bool {
 	return total == int64(0)
 }
 
+func validMovementLocation(locationID int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_movement sm "+
+		"INNER JOIN warehouse_location wl ON wl.id = sm.destination_id "+
+		"WHERE wl.id = ? AND sm.status != ? ", locationID, "finish").QueryRow(&total)
+
+	return total == int64(0)
+}
+
+func validStockopnameLocation(locationID int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_opname so "+
+		"INNER JOIN warehouse_location wl ON wl.id = so.location_id "+
+		"WHERE wl.id = ? AND so.status = ? ", locationID, "active").QueryRow(&total)
+
+	return total == int64(0)
+}
+
+func validPreparationLocation(locationID int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM preparation p "+
+		"INNER JOIN warehouse_location wl ON wl.id = p.location_id "+
+		"WHERE wl.id = ? AND p.status != ? ", locationID, "finish").QueryRow(&total)
+
+	return total == int64(0)
+}
+
+func validReceivingLocation(locationID int64) bool {
+	var total int64
+	orm.NewOrm().Raw("SELECT count(*) FROM receiving_unit ru "+
+		"INNER JOIN warehouse_location wl ON wl.id = ru.location_received "+
+		"INNER JOIN receiving r ON r.id = ru.receiving_id "+
+		"WHERE wl.id = ? AND r.status = ? ", locationID, "active").QueryRow(&total)
+
+	return total == int64(0)
+}
+
 func validCode(code string, areaID int64, exclude int64) bool {
 	var total int64
 	orm.NewOrm().Raw("SELECT count(*) FROM warehouse_location where code = ? and warehouse_area_id = ? and id != ?", code, areaID, exclude).QueryRow(&total)
