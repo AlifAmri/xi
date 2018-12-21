@@ -14,23 +14,22 @@ import (
 )
 
 type updateRequest struct {
-	ID              int64   `json:"-" valid:"required"`
-	PartnerID       string  `json:"partner_id"`
-	NumberContainer string  `json:"number_container"`
-	NumberSeal      string  `json:"number_seal"`
-	Note            string  `json:"note"`
-	CheckerID       string  `json:"checker_id"`
-	SupplyID        string  `json:"supply_id"`
-	DocLoc          string  `json:"docloc"`
+	ID              int64  `json:"-" valid:"required"`
+	PartnerID       string `json:"partner_id"`
+	NumberContainer string `json:"number_container"`
+	NumberSeal      string `json:"number_seal"`
+	Note            string `json:"note"`
+	CheckerID       string `json:"checker_id"`
+	SupplyID        string `json:"supply_id"`
+	DocLoc          string `json:"docloc"`
 
-	Items           []*item `json:"items" valid:"required"`
+	Items []*item `json:"items" valid:"required"`
 
 	Session       *auth.SessionData    `json:"-"`
 	DeliveryOrder *model.DeliveryOrder `json:"-"`
 	Partner       *model2.Partnership  `json:"-"`
-	Supply		  *user.User        	`json:"-"`
-	Chekcer		  *user.User        	`json:"-"`
-
+	Supply        *user.User           `json:"-"`
+	Chekcer       *user.User           `json:"-"`
 }
 
 func (ur *updateRequest) Validate() *validation.Output {
@@ -83,7 +82,7 @@ func (ur *updateRequest) Save() (u *model.DeliveryOrder, e error) {
 	u.Checker = ur.Chekcer
 	u.DocLoc = ur.DocLoc
 
-	if e = u.Save("partner_id", "number_container", "number_seal", "note","supply_id","checker_id","docloc"); e == nil {
+	if e = u.Save("partner_id", "number_container", "number_seal", "note", "supply_id", "checker_id", "docloc"); e == nil {
 		orm.NewOrm().LoadRelated(ur.DeliveryOrder, "Items", 0)
 
 		for _, item := range ur.Items {
