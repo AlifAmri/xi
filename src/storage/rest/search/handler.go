@@ -23,8 +23,9 @@ func (h *Handler) get(c echo.Context) (e error) {
 
 	itemCode := ctx.QueryParam("item")
 	batchCode := ctx.QueryParam("batch")
+	year := ctx.QueryParam("year")
 
-	data, total, e := findLocation(itemCode, batchCode)
+	data, total, e := findLocation(itemCode, batchCode, year)
 	if e == nil {
 		ctx.Data(data, total)
 	}
