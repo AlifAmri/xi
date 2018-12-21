@@ -19,14 +19,14 @@ func findLocation(itemCode string, batchCode string, year string) (m []*warehous
 			"inner join item i on i.id = su.item_id "+
 			"inner join item_batch ib on ib.id = su.batch_id "+
 			"where i.code = ? and ib.code = ? group by location_id;", itemCode, batchCode).QueryRows(&d)
-	}else if batchCode == "" && year != ""{
+	} else if batchCode == "" && year != "" {
 		total, err = o.Raw("SELECT wl.* FROM stock_unit su "+
 			"inner join stock_storage ss on ss.id = su.storage_id "+
 			"inner join warehouse_location wl on wl.id = ss.location_id "+
 			"inner join item i on i.id = su.item_id "+
 			"inner join item_batch ib on ib.id = su.batch_id "+
 			"where i.code = ? and ib.code LIKE ? group by location_id;", itemCode, "%"+year).QueryRows(&d)
-	}else {
+	} else {
 		total, err = o.Raw("SELECT wl.* FROM stock_unit su "+
 			"inner join stock_storage ss on ss.id = su.storage_id "+
 			"inner join warehouse_location wl on wl.id = ss.location_id "+

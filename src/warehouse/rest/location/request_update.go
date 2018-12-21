@@ -46,19 +46,19 @@ func (ur *updateRequest) Validate() *validation.Output {
 	if ur.Location != nil && ur.Area != nil {
 		if ur.Area.ID != ur.Location.Area.ID {
 			if !validLocationEmpty(ur.Location.ID) {
-				o.Failure("area_id.invalid", errInvalidLocationArea)
+				o.Failure("area_id.invalid", errInvalidLocationArea+" karena terdapat barang")
 			}
 			if !validMovementLocation(ur.Location.ID) {
-				o.Failure("area_id.invalid", errInvalidLocationArea)
+				o.Failure("area_id.invalid", errInvalidLocationArea+" karena terdapat movement aktif")
 			}
 			if !validStockopnameLocation(ur.Location.ID) {
-				o.Failure("area_id.invalid", errInvalidLocationArea)
+				o.Failure("area_id.invalid", errInvalidLocationArea+" karena terdapat stockopname aktif")
 			}
 			if !validPreparationLocation(ur.Location.ID) {
-				o.Failure("area_id.invalid", errInvalidLocationArea)
+				o.Failure("area_id.invalid", errInvalidLocationArea+" karena terdapat preparation aktif")
 			}
 			if !validReceivingLocation(ur.Location.ID) {
-				o.Failure("area_id.invalid", errInvalidLocationArea)
+				o.Failure("area_id.invalid", errInvalidLocationArea+" karena terdapat receiving aktif")
 			}
 		}
 	}

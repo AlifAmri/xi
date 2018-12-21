@@ -63,7 +63,7 @@ func createReceiving(iv *model.IncomingVehicle) {
 		Vehicle:   iv,
 		Status:    "active",
 		StartedAt: time.Now(),
-		IsActive:1,
+		IsActive:  1,
 	}
 
 	r.Save()

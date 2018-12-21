@@ -37,7 +37,6 @@ func validCancel(id int64, status string) (m *model.IncomingVehicle, e error) {
 	return
 }
 
-
 func validVehicle(id int64) (i *model.IncomingVehicle, e error) {
 	i = &model.IncomingVehicle{ID: id}
 	e = i.Read()
