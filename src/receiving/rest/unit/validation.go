@@ -92,6 +92,7 @@ func validItemCode(code string) bool {
 	return total == 1
 }
 
+// countLocationMoved hitung jumlah pallet pada lokasi tertentu
 func countLocationMoved(id int64) (total int) {
 	orm.NewOrm().Raw("SELECT count(distinct ss.id) FROM stock_storage ss"+
 		" inner join stock_unit su on su.storage_id = ss.id"+
@@ -99,8 +100,19 @@ func countLocationMoved(id int64) (total int) {
 	return
 }
 
+// countMovement hitung jumlah movement ke lokasi tertentu
 func countMovement(id int64) (total int) {
 	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0, "finish").QueryRow(&total)
+	return
+}
+
+// countLocationOpname hitung jumlah pallet di lokasi yang sedang di stock opname
+func countLocationOpname(LocID int64) (total int) {
+	orm.NewOrm().Raw("SELECT count(distinct soi.container_num) FROM stock_opname_item soi"+
+		" inner join stock_opname so on so.id = soi.stock_opname_id"+
+		" inner join warehouse_location wl on wl.id = so.location_id"+
+		" inner join item i on i.id = soi.container_id"+
+		" where so.location_id = ? and so.status = ? and so.type = ?", LocID, "active", "opname").QueryRow(&total)
 	return
 }
 
