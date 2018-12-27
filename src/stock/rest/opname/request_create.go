@@ -37,9 +37,12 @@ func (cr *createRequest) Validate() *validation.Output {
 
 	if len(cr.Items) > 0 {
 		contNum := make(map[int8]string)
+		contcollector := make(map[int8]bool)
 		for i, item := range cr.Items {
 			item.Validate(i, o)
-
+			if item.IsVoid == int8(0) {
+				contcollector[item.ContainerNum] = true
+			}
 			if item.ContainerNum > 0 && item.ContainerID != "" {
 				if val, ok := contNum[item.ContainerNum]; ok {
 					if item.ContainerID != val {
@@ -50,6 +53,10 @@ func (cr *createRequest) Validate() *validation.Output {
 					contNum[item.ContainerNum] = item.ContainerID
 				}
 			}
+		}
+		// cek max pallet dan container
+		if (len(contcollector) + countMovement(cr.Location.ID)) > cr.Location.StorageCapacity {
+			o.Failure("location_id.invalid", "pallet di lokasi ini sudah maksimum")
 		}
 	}
 

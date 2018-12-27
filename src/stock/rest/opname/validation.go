@@ -94,6 +94,12 @@ func validWeek(s string) bool {
 	return false
 }
 
+// countMovement hitung jumlah movement ke lokasi tertentu
+func countMovement(id int64) (total int) {
+	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0, "finish").QueryRow(&total)
+	return
+}
+
 func validLocation(ide string) (l *warehouse.Location, e error) {
 	l = new(warehouse.Location)
 

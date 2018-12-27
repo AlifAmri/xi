@@ -29,8 +29,21 @@ func (ur *updateRequest) Validate() *validation.Output {
 	}
 
 	if len(ur.Items) > 0 {
+		contcollector := make(map[int8]bool)
 		for i, item := range ur.Items {
 			item.Validate(i, o)
+			if item.IsVoid == int8(0) {
+				contcollector[item.ContainerNum] = true
+			}
+		}
+		var countMove int
+		if ur.StockOpname != nil {
+			ur.StockOpname.Location.Read("ID")
+			countMove = countMovement(ur.StockOpname.Location.ID)
+		}
+		// cek max pallet dan container
+		if (len(contcollector) + countMove) > ur.StockOpname.Location.StorageCapacity {
+			o.Failure("location_id.invalid", "pallet di lokasi ini sudah maksimum")
 		}
 	}
 
