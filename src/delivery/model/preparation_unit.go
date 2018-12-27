@@ -29,7 +29,6 @@ type PreparationUnit struct {
 	IsActive        int8                `orm:"column(is_active)" json:"is_active"`
 	LocationPicking *warehouse.Location `orm:"column(location_picking);null;rel(fk)" json:"location_picking,omitempty"`
 	CheckedBy       *user.User          `orm:"column(checked_by);null;rel(fk)" json:"checked_by"`
-	QcBy            *user.User          `orm:"column(qc_by);null;rel(fk)" json:"qc_by"`
 	CreatedBy       *user.User          `orm:"column(created_by);null;rel(fk)" json:"created_by"`
 	ApprovedBy      *user.User          `orm:"column(approved_by);null;rel(fk)" json:"approved_by"`
 	CreatedAt       time.Time           `orm:"column(created_at);type(timestamp)" json:"created_at"`
@@ -45,7 +44,6 @@ func (m *PreparationUnit) MarshalJSON() ([]byte, error) {
 		PreparationID     string `json:"preparation_id"`
 		UnitID            string `json:"unit_id"`
 		CheckedByID       string `json:"checked_by_id"`
-		QcByID            string `json:"qc_by_id"`
 		CreatedByID       string `json:"created_by_id"`
 		ApprovedByID      string `json:"approved_by_id"`
 		LocationPickingID string `json:"location_picking_id"`
@@ -77,14 +75,6 @@ func (m *PreparationUnit) MarshalJSON() ([]byte, error) {
 		alias.CheckedByID = common.Encrypt(m.CheckedBy.ID)
 	} else {
 		alias.CheckedBy = nil
-	}
-
-	// Encrypt alias.CheckedByID when m.CheckedBy not nill
-	// and the ID is setted
-	if m.QcBy != nil && m.QcBy.ID != int64(0) {
-		alias.QcByID = common.Encrypt(m.QcBy.ID)
-	} else {
-		alias.QcBy = nil
 	}
 
 	// Encrypt alias.CreatedByID when m.CreatedBy not nill

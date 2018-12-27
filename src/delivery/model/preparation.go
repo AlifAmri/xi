@@ -46,6 +46,7 @@ type Preparation struct {
 	Note                string               `orm:"column(note);null" json:"note"`
 	ApprovedBy          *user.User           `orm:"column(approved_by);null;rel(fk)" json:"approved_by"`
 	CreatedBy           *user.User           `orm:"column(created_by);null;rel(fk)" json:"created_by"`
+	CheckoutBy          *user.User           `orm:"column(checkout_by);null;rel(fk)" json:"checkout_by"`
 	CreatedAt           time.Time            `orm:"column(created_at);type(timestamp);null" json:"created_at"`
 	StartedAt           time.Time            `orm:"column(started_at);type(timestamp);null" json:"started_at"`
 	FinishedAt          time.Time            `orm:"column(finished_at);type(timestamp);null" json:"finished_at"`
@@ -66,6 +67,7 @@ func (m *Preparation) MarshalJSON() ([]byte, error) {
 		ID              string `json:"id"`
 		ApprovedByID    string `json:"approved_by_id"`
 		CreatedByID     string `json:"created_by_id"`
+		CheckoutByID    string `json:"checkout_by_id"`
 		LocationID      string `json:"location_id"`
 		PartnerID       string `json:"partner_id"`
 		SupervisorID    string `json:"supervisor_id"`
@@ -106,6 +108,14 @@ func (m *Preparation) MarshalJSON() ([]byte, error) {
 		alias.CreatedByID = common.Encrypt(m.CreatedBy.ID)
 	} else {
 		alias.CreatedBy = nil
+	}
+
+	// Encrypt alias.CheckoutByID when m.CheckoutBy not nill
+	// and the ID is setted
+	if m.CheckoutBy != nil && m.CheckoutBy.ID != int64(0) {
+		alias.CheckoutByID = common.Encrypt(m.CheckoutBy.ID)
+	} else {
+		alias.CheckoutBy = nil
 	}
 
 	if m.Location != nil && m.Location.ID != int64(0) {

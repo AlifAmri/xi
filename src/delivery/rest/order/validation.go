@@ -56,3 +56,13 @@ func validPreparation(ide string, do *model.DeliveryOrder) (rp *model.Preparatio
 
 	return
 }
+
+func validPreparationID(ide int64) (rp *model.Preparation, e error) {
+	rp = new(model.Preparation)
+	rp = &model.Preparation{ID: ide}
+	if e = rp.Read("ID"); e != nil {
+		e = errors.New("not valid")
+	}
+
+	return
+}
