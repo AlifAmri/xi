@@ -95,9 +95,8 @@ func validContainer(ide string) (c *model2.Item, e error) {
 }
 
 func validStockMovement(id int64, status string) (m *model.StockMovement, e error) {
-	o := orm.NewOrm()
-
-	e = o.Raw("SELECT * FROM stock_movement where id = ? and status = ?", id, status).QueryRow(&m)
+	m = &model.StockMovement{ID: id, Status: status}
+	e = m.Read("ID", "Status")
 
 	return
 }
