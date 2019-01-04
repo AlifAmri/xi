@@ -95,8 +95,9 @@ func validContainer(ide string) (c *model2.Item, e error) {
 }
 
 func validStockMovement(id int64, status string) (m *model.StockMovement, e error) {
-	m = &model.StockMovement{ID: id, Status: status}
-	e = m.Read("ID", "Status")
+	m = new(model.StockMovement)
+	o := orm.NewOrm()
+	e = o.QueryTable(m).Filter("id", id).Filter("status", status).RelatedSel().Limit(1).One(m)
 
 	return
 }

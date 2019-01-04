@@ -5,6 +5,7 @@
 package movement
 
 import (
+	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/cuxs/validation"
 	"git.qasico.com/gudang/api/src/auth"
 	"git.qasico.com/gudang/api/src/stock/model"
@@ -44,5 +45,29 @@ func (cr *cancelRequest) Save() (e error) {
 		}
 	}
 
+	if e == nil && u.Type == "picking" {
+		go removeMovementPicking(cr.StockMovement)
+	}
+
 	return
+}
+
+func removeMovementPicking(u *model.StockMovement) {
+	if u.NewUnit != nil {
+		u.NewUnit.Delete()
+	}
+
+	var puID int64
+	o := orm.NewOrm()
+	o.Raw("SELECT pu.id FROM preparation_unit pu "+
+		"INNER JOIN preparation p ON p.id = pu.preparation_id "+
+		"INNER JOIN stock_unit su ON su.id = pu.unit_id "+
+		"WHERE p.id = ? AND su.id =? AND pu.is_active = ? AND pu.quantity = ?", u.RefID, u.Unit.ID, 0, u.Quantity).QueryRow(&puID)
+	if puID != int64(0) {
+		o.Raw("DELETE FROM preparation_unit WHERE id = ?", puID).Exec()
+	}
+
+	if err := u.Read("ID"); err == nil {
+		u.Delete()
+	}
 }
