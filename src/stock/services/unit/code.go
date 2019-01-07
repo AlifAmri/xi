@@ -32,7 +32,7 @@ func lastCode() int {
 
 	var lastCode string
 	var lastNumber int
-	if e := o.Raw("select code from stock_unit where code like ? and code not like ? order by code desc", "B%", "%-%").QueryRow(&lastCode); e == nil {
+	if e := o.Raw("select code from stock_unit where code like ? and code not like ? order by id desc", "B%", "%-%").QueryRow(&lastCode); e == nil {
 		number := regexp.MustCompile(`[\d]+$`).FindString(lastCode)
 		lastNumber, _ = strconv.Atoi(number)
 	}
@@ -45,7 +45,7 @@ func lastChild(code string) int {
 
 	var lastCode string
 	var lastNumber int
-	if e := o.Raw("select code from stock_unit where code like ? order by code desc", "%"+code+"%").QueryRow(&lastCode); e == nil {
+	if e := o.Raw("select code from stock_unit where code like ? order by id desc", "%"+code+"%").QueryRow(&lastCode); e == nil {
 		number := strings.Replace(lastCode, code, "", 1)
 		lastNumber, _ = strconv.Atoi(number)
 	}
