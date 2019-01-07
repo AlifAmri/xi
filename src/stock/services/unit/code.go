@@ -18,12 +18,14 @@ const codeFormatChild = "%s-%d"
 
 // NewCode membuat code unit stock baru
 func NewCode() string {
-	return fmt.Sprintf(codeFormat, lastCode())
+	lastNum := checkUniqueCodeParent(codeFormat, lastCode())
+	return fmt.Sprintf(codeFormat, lastNum)
 }
 
 // NewChildCode membuat code unit stock baru
 func NewChildCode(parent string) string {
-	return fmt.Sprintf(codeFormatChild, parent, lastChild(fmt.Sprintf("%s-", parent)))
+	lastNum := checkUniqueCodeChild(codeFormatChild, parent, lastChild(fmt.Sprintf("%s-", parent)))
+	return fmt.Sprintf(codeFormatChild, parent, lastNum)
 }
 
 func lastCode() int {
@@ -51,4 +53,26 @@ func lastChild(code string) int {
 	}
 
 	return lastNumber + 1
+}
+
+func checkUniqueCodeParent(prefix string, last int) int {
+	var result int64
+	code := fmt.Sprintf(prefix, last)
+	o := orm.NewOrm()
+	o.Raw("SELECT id FROM stock_unit WHERE code = ?", code).QueryRow(&result)
+	if result != int64(0) {
+		last = checkUniqueCodeParent(prefix, last+1)
+	}
+	return last
+}
+
+func checkUniqueCodeChild(prefix string, parent string, last int) int {
+	var result int64
+	code := fmt.Sprintf(prefix, parent, last)
+	o := orm.NewOrm()
+	o.Raw("SELECT id FROM stock_unit WHERE code = ?", code).QueryRow(&result)
+	if result != int64(0) {
+		last = checkUniqueCodeChild(prefix, parent, last+1)
+	}
+	return last
 }
