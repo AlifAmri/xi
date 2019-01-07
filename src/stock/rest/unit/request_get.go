@@ -18,6 +18,7 @@ func Show(id int64) (*model.StockUnit, error) {
 	if err := o.Filter("id", id).RelatedSel().Limit(1).One(m); err != nil {
 		return nil, err
 	}
+	m.BarcodeGenerator()
 	return m, nil
 }
 

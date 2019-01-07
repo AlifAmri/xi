@@ -9,11 +9,14 @@ import (
 	"time"
 
 	"git.qasico.com/cuxs/common"
+	"git.qasico.com/cuxs/env"
 	"git.qasico.com/cuxs/orm"
 	"git.qasico.com/gudang/api/custom/barcode"
 	"git.qasico.com/gudang/api/src/inventory/model"
 	"git.qasico.com/gudang/api/src/stock/services/unit"
 	"git.qasico.com/gudang/api/src/user"
+	"os"
+	"strings"
 )
 
 func init() {
@@ -165,4 +168,34 @@ func (m *StockUnit) SetOut() error {
 	m.Status = "out"
 
 	return m.Save("status")
+}
+
+// BarcodeGenerator function to make barcode image if there is no barcode image
+func (m *StockUnit) BarcodeGenerator() {
+	if m.ID != int64(0) {
+		if m.BarcodeImage != "" {
+			//get file name
+			path := strings.Split(m.BarcodeImage, "/")
+			fileName := path[len(path)-1]
+			if dir := env.GetString("BARCODE_DIRECTORY", "."); dir != "." {
+				if _, err := os.Stat(dir + "/" + fileName); err != nil {
+					if os.IsNotExist(err) {
+						// file does not exist
+						m.BarcodeImage, _ = barcode.MakeBarcode(m.Code)
+						m.Save("barcode_image")
+					}
+				}
+			}
+		} else {
+			m.BarcodeImage, _ = barcode.MakeBarcode(m.Code)
+			m.Save("barcode_image")
+		}
+	}
+}
+
+// BarcodeChecks to run barcode generator for multiple stockunit
+func BarcodeChecks(m []*StockUnit) {
+	for _, un := range m {
+		un.BarcodeGenerator()
+	}
 }

@@ -23,6 +23,7 @@ _testmain.go
 *.test
 *.prof
 env
+.env
 cover.out
 coverage.html
 *.out

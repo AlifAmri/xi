@@ -41,6 +41,7 @@ func ShowPrint(id int64) (*Data, error) {
 		}
 		ret = &Data{Loc: m, Unit: mx}
 	}
+	go model.BarcodeChecks(mx)
 	return ret, nil
 }
 
