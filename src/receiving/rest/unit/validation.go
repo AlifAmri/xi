@@ -35,7 +35,7 @@ var (
 	errInvalidLocation      = "Lokasi tidak valid"
 	errInvalidBatchCode     = "Format kode batch tidak valid"
 	errInvalidItemCode      = "Kode tidak ditemukan atau tidak aktif"
-	errLocationFull         = "Lokasi sudah Full"
+	errLocationFull         = "Lokasi sudah penuh"
 	errLocationOpname       = "Sedang dilakukan stockopname"
 )
 

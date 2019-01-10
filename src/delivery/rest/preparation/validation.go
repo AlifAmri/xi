@@ -40,6 +40,9 @@ var (
 	errInvalidDate                 = "Tanggal tidak valid"
 	errInvalidPreparationLocation  = "Lokasi preparation tidak valid"
 	errInvalidStockUnit            = "Unit tidak valid"
+	errInvalidStockUnitMovement    = "unit sedang ada proses movement"
+	errInvalidStockUnitOpname      = "pada lokasi unit sedang ada proses stockopname"
+	errInvalidStockUnitDuplicate   = "unit ini sudah ada pada preparation unit"
 	errInvalidQuantity             = "Quantity tidak mencukupi"
 	errInvalidQuantityOver         = "Quantity melebihi dari yang dibutuhkan"
 	errUniqueCode                  = "Kode dokumen telah digunakan"
@@ -192,17 +195,40 @@ func validStockUnit(ide string) (rp *model4.StockUnit, e error) {
 	if rp.ID, e = common.Decrypt(ide); e == nil {
 		rp.Status = "stored"
 		if e = rp.Read("id", "status"); e == nil {
-			if e = rp.Storage.Read(); e == nil {
-				// cek apakah stock unit ada di movement yang aktif
-				var totalMove float64
-				orm.NewOrm().Raw("SELECT count(*) FROM stock_movement where unit_id = ? and status != ?", rp.ID, "finish").QueryRow(&totalMove)
-				if totalMove > 0 {
-					e = errors.New("unit sedang ada proses movement")
-				}
-			}
+			e = rp.Storage.Read("ID")
 		}
-
 	}
 
+	return
+}
+
+func validUnitMovement(unitID int64) (status bool) {
+	var totalMove float64
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_movement where unit_id = ? and status != ?", unitID, "finish").QueryRow(&totalMove)
+	if totalMove > 0 {
+		status = true
+	}
+	return
+}
+
+func validUnitStockopname(LocID int64) (status bool) {
+	var OpnameID int64
+	orm.NewOrm().Raw("SELECT so.id FROM stock_opname so "+
+		"inner join warehouse_location wl on wl.id = so.location_id "+
+		"where wl.id = ? and so.status = ?", LocID, "active").QueryRow(&OpnameID)
+	if OpnameID > int64(0) {
+		status = true
+	}
+	return
+}
+
+func validDuplicateUnitInPreparation(preparationID int64, unit int64) (status bool) {
+	var totalPreUnit float64
+	orm.NewOrm().Raw("SELECT count(*) FROM preparation_unit pu "+
+		"inner join preparation p on p.id = pu.preparation_id "+
+		"where p.id = ? and pu.unit_id = ? and p.status = ?", preparationID, unit, "active").QueryRow(&totalPreUnit)
+	if totalPreUnit > 0 {
+		status = true
+	}
 	return
 }

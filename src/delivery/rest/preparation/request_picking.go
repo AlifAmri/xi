@@ -39,6 +39,13 @@ func (ur *pickingRequest) Validate() *validation.Output {
 	if ur.UnitID != "" {
 		if ur.StockUnit, e = validStockUnit(ur.UnitID); e != nil {
 			o.Failure("unit_id.invalid", errInvalidStockUnit)
+		} else {
+			if validUnitMovement(ur.StockUnit.ID) {
+				o.Failure("unit_id.invalid", errInvalidStockUnitMovement)
+			}
+			if validUnitStockopname(ur.StockUnit.Storage.Location.ID) {
+				o.Failure("unit_id.invalid", errInvalidStockUnitOpname)
+			}
 		}
 	}
 
@@ -50,7 +57,11 @@ func (ur *pickingRequest) Validate() *validation.Output {
 	if ur.QuantityRequired < ur.Quantity {
 		o.Failure("quantity.invalid", errInvalidQuantityOver)
 	}
-
+	if ur.StockUnit != nil && ur.Preparation != nil {
+		if validDuplicateUnitInPreparation(ur.Preparation.ID, ur.StockUnit.ID) {
+			o.Failure("unit_id.invalid", errInvalidStockUnitDuplicate)
+		}
+	}
 	return o
 }
 
