@@ -41,14 +41,14 @@ func (cr *finishRequest) Validate() *validation.Output {
 		} else {
 			movementItem := countMovement(cr.Location.ID)
 			stockItem := countLocationMoved(cr.Location.ID)
-			opnameItem := countLocationOpname(cr.Location.ID)
+			opname := checkLocationOpname(cr.Location.ID)
 			// cek dengan stock di gudang dan movement
 			if (stockItem + movementItem) >= cr.Location.StorageCapacity {
 				o.Failure("location_id.invalid", errLocationFull)
 			}
-			// cek dengan yang di stockopname dan movement
-			if (opnameItem + movementItem) >= cr.Location.StorageCapacity {
-				o.Failure("location_id.invalid", errLocationFull)
+			// cek apakah lokasi di stockopname
+			if opname {
+				o.Failure("location_id.invalid", errLocationOpname)
 			}
 		}
 	}

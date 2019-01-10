@@ -36,6 +36,7 @@ var (
 	errInvalidBatchCode     = "Format kode batch tidak valid"
 	errInvalidItemCode      = "Kode tidak ditemukan atau tidak aktif"
 	errLocationFull         = "Lokasi sudah Full"
+	errLocationOpname       = "Sedang dilakukan stockopname"
 )
 
 func validBatchCode(code string) (c string, e error) {
@@ -100,7 +101,7 @@ func countLocationMoved(id int64) (total int) {
 	return
 }
 
-// countMovement hitung jumlah movement ke lokasi tertentu
+// countMovement hitung jumlah movement pallet ke lokasi tertentu
 func countMovement(id int64) (total int) {
 	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0, "finish").QueryRow(&total)
 	return
@@ -113,6 +114,16 @@ func countLocationOpname(LocID int64) (total int) {
 		" inner join warehouse_location wl on wl.id = so.location_id"+
 		" inner join item i on i.id = soi.container_id"+
 		" where so.location_id = ? and so.status = ? and so.type = ?", LocID, "active", "opname").QueryRow(&total)
+	return
+}
+
+// checkLocationOpname mengecek jika lokasi itu sedang di stockopname atau tidak
+func checkLocationOpname(LocID int64) (status bool) {
+	var ID int64
+	orm.NewOrm().Raw("SELECT id FROM stock_opname so where so.location_id = ? and so.status = ? and so.type = ?", LocID, "active", "opname").QueryRow(&ID)
+	if ID != int64(0) {
+		status = true
+	}
 	return
 }
 
