@@ -46,6 +46,9 @@ func (cr *deleteRequest) Save() (e error) {
 
 		if mv != nil && e == nil {
 			cr.PreparationUnit.Preparation.Read()
+			cr.PreparationUnit.Unit.Read("ID")
+			cr.PreparationUnit.Unit.Storage.Read("ID")
+			cr.PreparationUnit.Unit.Storage.Container.Read("ID")
 
 			u := &model2.StockMovement{
 				Unit:        cr.PreparationUnit.Unit,
@@ -53,6 +56,7 @@ func (cr *deleteRequest) Save() (e error) {
 				Status:      "new",
 				Quantity:    cr.PreparationUnit.Quantity,
 				Origin:      cr.PreparationUnit.Preparation.Location,
+				Pallet:      cr.PreparationUnit.Unit.Storage.Container,
 				Destination: mv.Origin,
 				CreatedBy:   cr.Session.User.(*user.User),
 				CreatedAt:   time.Now(),
