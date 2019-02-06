@@ -43,7 +43,7 @@ func (cr *cancelRequest) Save() (e error) {
 		}
 
 		if u.Purpose == "dispatching" {
-			_, e = o.Raw("update delivery_order set is_active = ? where vehicle_id = ?", 0, u.ID).Exec()
+			_, e = o.Raw("update delivery_order set is_active = ?, status = ? where vehicle_id = ?", 0 , "cancelled", u.ID).Exec()
 		}
 	}
 
