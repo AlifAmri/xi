@@ -132,7 +132,7 @@ func (m *StockOpname) generateCode() string {
 	// get last code from database
 	var lastCode string
 	var lastIndex int
-	if e := orm.NewOrm().Raw("SELECT code from stock_opname where code like ? order by code desc", prefix+"%").QueryRow(&lastCode); e == nil {
+	if e := orm.NewOrm().Raw("SELECT code from stock_opname where code like ? order by id desc", prefix+"%").QueryRow(&lastCode); e == nil {
 		rn := strings.Replace(lastCode, prefix, "", 1)
 		lastIndex, _ = strconv.Atoi(rn)
 	}

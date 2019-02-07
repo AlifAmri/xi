@@ -143,7 +143,7 @@ func (m *DeliveryOrder) generateCode() string {
 	// get last code from database
 	var lastCode string
 	var lastIndex int
-	if e := orm.NewOrm().Raw("SELECT code from delivery_order where code like ? order by code desc", "%"+suffix).QueryRow(&lastCode); e == nil {
+	if e := orm.NewOrm().Raw("SELECT code from delivery_order where code like ? order by id desc", "%"+suffix).QueryRow(&lastCode); e == nil {
 		rn := strings.Replace(lastCode, suffix, "", 1)
 		lastIndex, _ = strconv.Atoi(rn)
 	}
