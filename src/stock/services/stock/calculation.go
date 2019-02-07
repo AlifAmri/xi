@@ -15,6 +15,7 @@ import (
 	"git.qasico.com/gudang/api/src/stock/model"
 
 	"git.qasico.com/cuxs/orm"
+	"git.qasico.com/gudang/api/src/stock/rest/unit"
 )
 
 type LogMaker struct {
@@ -88,6 +89,24 @@ func Recalculate(lm *LogMaker) {
 	}()
 }
 
+func RecalculateByStockUnit(rq *orm.RequestQuery) {
+	go func() {
+		sus, _, _ := unit.Get(rq)
+		for _, su := range *sus {
+			calculateUnit(&su)
+
+			if su.Batch != nil {
+				calculateBatch(su.Batch)
+			}
+
+			if su.Item != nil {
+				calculateItem(su.Item)
+			}
+		}
+
+	}()
+}
+
 func calculateUnit(su *model.StockUnit) {
 	var stock float64
 	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log where stock_unit_id = ?;", su.ID).QueryRow(&stock)
@@ -98,7 +117,7 @@ func calculateUnit(su *model.StockUnit) {
 
 func calculateBatch(ib *inventory.ItemBatch) {
 	var stock float64
-	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log where batch_id = ?;", ib.ID).QueryRow(&stock)
+	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log sl inner join stock_unit su on sl.stock_unit_id = su.id where sl.batch_id = ? AND su.status not in ('void', 'out');", ib.ID).QueryRow(&stock)
 
 	ib.Stock = stock
 	ib.Save("stock")
@@ -106,7 +125,7 @@ func calculateBatch(ib *inventory.ItemBatch) {
 
 func calculateItem(i *inventory.Item) {
 	var stock float64
-	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log where item_id = ?;", i.ID).QueryRow(&stock)
+	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log sl inner join stock_unit su on sl.stock_unit_id = su.id where sl.item_id = ? AND su.status not in ('void', 'out');", i.ID).QueryRow(&stock)
 
 	i.Stock = stock
 	i.Save("stock")

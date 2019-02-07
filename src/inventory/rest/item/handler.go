@@ -8,6 +8,7 @@ import (
 	"git.qasico.com/cuxs/cuxs"
 	"git.qasico.com/gudang/api/src/auth"
 	"github.com/labstack/echo"
+	"git.qasico.com/gudang/api/src/stock/services/stock"
 )
 
 // Handler collection handler for privilege.
@@ -23,6 +24,7 @@ func (h *Handler) URLMapping(r *echo.Group) {
 	r.PUT("/:id/activate", h.activate, auth.Authorized(""))
 	r.PUT("/:id/deactivate", h.deactivate, auth.Authorized(""))
 	r.POST("/equation", h.updateEquation, auth.Authorized(""))
+	r.GET("/recalculate", h.recalculate, auth.Authorized(""))
 }
 
 func (h *Handler) get(c echo.Context) (e error) {
@@ -31,6 +33,15 @@ func (h *Handler) get(c echo.Context) (e error) {
 	data, total, e := Get(ctx.RequestQuery())
 	if e == nil {
 		ctx.Data(data, total)
+	}
+
+	return ctx.Serve(e)
+}
+func (h *Handler) recalculate(c echo.Context) (e error) {
+	ctx := c.(*cuxs.Context)
+
+	if e == nil {
+		stock.RecalculateByStockUnit(ctx.RequestQuery())
 	}
 
 	return ctx.Serve(e)
