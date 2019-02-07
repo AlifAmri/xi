@@ -112,8 +112,8 @@ func configDefault() (wl []*warehouse.Location) {
 }
 
 func allLocation() (wl []*warehouse.Location) {
-	orm.NewOrm().Raw("SELECT * FROM warehouse_location wl " +
-		"where wl.is_active = 1 and wl.storage_capacity > wl.storage_used " +
+	orm.NewOrm().Raw("SELECT wl.* FROM warehouse_location wl inner join warehouse_area wa on wl.warehouse_area_id = wa.id " +
+		"where wa.type in ('storage') and wl.is_active = 1 and wl.storage_capacity > wl.storage_used " +
 		"order by wl.storage_used DESC, wl.id ASC").QueryRows(&wl)
 
 	return
