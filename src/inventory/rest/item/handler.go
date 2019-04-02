@@ -41,6 +41,7 @@ func (h *Handler) recalculate(c echo.Context) (e error) {
 	ctx := c.(*cuxs.Context)
 
 	if e == nil {
+		stock.RecalculateByStockNonBatch()
 		stock.RecalculateByStockUnit(ctx.RequestQuery())
 	}
 

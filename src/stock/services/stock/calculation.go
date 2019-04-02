@@ -107,6 +107,23 @@ func RecalculateByStockUnit(rq *orm.RequestQuery) {
 	}()
 }
 
+func RecalculateByStockNonBatch() {
+	go func() {
+		rp := new(inventory.Item)
+		var items []*inventory.Item
+
+		cond := orm.NewCondition()
+		cond = cond.And("type_id__is_batch", 0)
+
+		o := orm.NewOrm()
+		o.QueryTable(rp).SetCond(cond).RelatedSel().All(&items)
+
+		for _, i := range items {
+			calculateItem(i)
+		}
+	}()
+}
+
 func calculateUnit(su *model.StockUnit) {
 	var stock float64
 	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log where stock_unit_id = ?;", su.ID).QueryRow(&stock)
@@ -125,7 +142,17 @@ func calculateBatch(ib *inventory.ItemBatch) {
 
 func calculateItem(i *inventory.Item) {
 	var stock float64
-	orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log sl inner join stock_unit su on sl.stock_unit_id = su.id where sl.item_id = ? AND su.status not in ('void', 'out');", i.ID).QueryRow(&stock)
+
+	i.Read("ID")
+	i.Type.Read("ID")
+
+	if i.Type.IsBatch == int8(1) {
+		orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log sl inner join stock_unit su on sl.stock_unit_id = su.id where sl.item_id = ? AND su.status not in ('void', 'out');", i.ID).QueryRow(&stock)
+	}else{
+		// not batch akan masuk kesini
+		// not batch contohnya adalah pallet, sticker, dll
+		orm.NewOrm().Raw("SELECT sum(quantity) FROM stock_log sl where sl.item_id = ? ;", i.ID).QueryRow(&stock)
+	}
 
 	i.Stock = stock
 	i.Save("stock")
