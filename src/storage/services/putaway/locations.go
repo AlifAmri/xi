@@ -21,22 +21,27 @@ func findLocationNCP() (wl []*warehouse.Location) {
 }
 
 func findLocationConfig(icode string, bcode string) (wl []*warehouse.Location) {
+	// tahun produksi
 	if wls := configBatch(bcode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
+	// prefix
 	if wls := configCode(icode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
+	// kategori item
 	if wls := configCategory(icode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
+	// group item
 	if wls := configGroup(icode); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}
 
+	// default
 	if wls := configDefault(); len(wls) > 0 {
 		wl = append(wl, wls...)
 	}

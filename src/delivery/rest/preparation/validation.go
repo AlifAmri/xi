@@ -40,8 +40,9 @@ var (
 	errInvalidDate                 = "Tanggal tidak valid"
 	errInvalidPreparationLocation  = "Lokasi preparation tidak valid"
 	errInvalidStockUnit            = "Unit tidak valid"
-	errInvalidStockUnitMovement    = "unit sedang ada proses movement"
+	errInvalidStockUnitMovement    = "unit sedang ada proses movement, silahkan refresh browser"
 	errInvalidStockUnitOpname      = "pada lokasi unit sedang ada proses stockopname"
+	errInvalidLocation             = "pada lokasi sedang ada proses movement"
 	errInvalidStockUnitDuplicate   = "unit ini sudah ada pada preparation unit"
 	errInvalidQuantity             = "Quantity tidak mencukupi"
 	errInvalidQuantityOver         = "Quantity melebihi dari yang dibutuhkan"
@@ -202,12 +203,14 @@ func validStockUnit(ide string) (rp *model4.StockUnit, e error) {
 	return
 }
 
-func validUnitMovement(unitID int64) (status bool) {
+func validLocation(locID int64) (status bool) {
 	var totalMove float64
-	orm.NewOrm().Raw("SELECT count(*) FROM stock_movement where unit_id = ? and status != ?", unitID, "finish").QueryRow(&totalMove)
+	orm.NewOrm().Raw("SELECT count(*) FROM stock_movement where origin_id = ? AND status IN ('new','start');", locID).QueryRow(&totalMove)
+
 	if totalMove > 0 {
 		status = true
 	}
+
 	return
 }
 

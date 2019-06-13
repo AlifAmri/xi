@@ -102,11 +102,17 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (
 		"inner join warehouse_location wl on wl.id = ss.location_id "+
 		"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+batchJoin+
 		"where wa.type = 'storage' and su.status = 'stored' and su.is_defect = 0 and su.item_id = ? "+withBatch+
-		"group by ss.location_id order by wl.warehouse_area_id DESC, wl.id ASC, quantity DESC;", i.ID).QueryRows(&s)
+		"group by ss.location_id order by SUBSTRING(ib.code, -2) ASC;", i.ID).QueryRows(&s)
 
+	o := orm.NewOrm()
 	if e == nil && len(s) > 0 {
 		for _, si := range s {
-			if totalQuantityChoosed < q {
+
+			// cek movement yang sedang berjalan di lokasi tersebut
+			var totalMove float64
+			o.Raw("SELECT count(*) FROM stock_movement where origin_id = ? AND status IN ('new','start');", si.LocationKey).QueryRow(&totalMove)
+
+			if totalQuantityChoosed < q && totalMove == 0 {
 				ps := &model.PreparationSuggested{
 					Location:  &warehouse.Location{ID: si.LocationKey, Name: si.LocationName},
 					Item:      i,

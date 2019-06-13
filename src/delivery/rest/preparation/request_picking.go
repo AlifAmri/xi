@@ -40,8 +40,8 @@ func (ur *pickingRequest) Validate() *validation.Output {
 		if ur.StockUnit, e = validStockUnit(ur.UnitID); e != nil {
 			o.Failure("unit_id.invalid", errInvalidStockUnit)
 		} else {
-			if validUnitMovement(ur.StockUnit.ID) {
-				o.Failure("unit_id.invalid", errInvalidStockUnitMovement)
+			if validLocation(ur.StockUnit.Storage.Location.ID) {
+				o.Failure("location.invalid", errInvalidLocation)
 			}
 			if validUnitStockopname(ur.StockUnit.Storage.Location.ID) {
 				o.Failure("unit_id.invalid", errInvalidStockUnitOpname)
