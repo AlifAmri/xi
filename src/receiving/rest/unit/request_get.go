@@ -18,7 +18,7 @@ func Show(id int64) (*model.ReceivingUnit, error) {
 		return nil, err
 	}
 
-	m.LocationSuggested = putaway.SuggestedPutaway(m.ItemCode, m.BatchCode, m.IsNcp)
+	m.LocationSuggested = putaway.SuggestedPutaway(m.ItemCode, m.BatchCode, m.IsNcp, m.Pallet.ID)
 	m.Save("location_suggested")
 
 	return m, nil

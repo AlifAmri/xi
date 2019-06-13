@@ -12,7 +12,7 @@ import (
 	"git.qasico.com/gudang/api/src/warehouse"
 )
 
-func SuggestedPutaway(itemCode string, batchCode string, ncp int8) (wl *warehouse.Location) {
+func SuggestedPutaway(itemCode string, batchCode string, ncp int8, palletID int64) (wl *warehouse.Location) {
 	var wls []*warehouse.Location
 
 	if ncp == 1 {
@@ -25,7 +25,7 @@ func SuggestedPutaway(itemCode string, batchCode string, ncp int8) (wl *warehous
 	// aktif ke area tersebut
 	locationMoving(wls)
 
-	return apriory(itemCode, batchCode, wls)
+	return apriory(itemCode, batchCode, palletID, wls)
 }
 
 func locationMoving(wls []*warehouse.Location) {
@@ -56,7 +56,7 @@ func locationMoving(wls []*warehouse.Location) {
 	}
 }
 
-func apriory(itemCode string, batchCode string, wls []*warehouse.Location) (wl *warehouse.Location) {
+func apriory(itemCode string, batchCode string, palletID int64, wls []*warehouse.Location) (wl *warehouse.Location) {
 
 	var pEmpty []*warehouse.Location
 	var pItem []*warehouse.Location
@@ -66,12 +66,12 @@ func apriory(itemCode string, batchCode string, wls []*warehouse.Location) (wl *
 			if l.StorageUsed == 0 {
 				pEmpty = append(pEmpty, l)
 			} else {
-				if batchMatch(itemCode, batchCode, l) {
+				if batchMatch(itemCode, batchCode, palletID, l) {
 					pBatch = append(pBatch, l)
 					break
 				}
 
-				if itemMatch(itemCode, l) {
+				if itemMatch(itemCode, palletID, l) {
 					pItem = append(pItem, l)
 				}
 
@@ -99,7 +99,7 @@ func apriory(itemCode string, batchCode string, wls []*warehouse.Location) (wl *
 	return
 }
 
-func batchMatch(itemCode string, batchCode string, wl *warehouse.Location) bool {
+func batchMatch(itemCode string, batchCode string, palletID int64, wl *warehouse.Location) bool {
 	rangeWeek := make(map[int][]int, 14)
 	rangeWeek[0] = []int{1, 4}
 	rangeWeek[1] = []int{5, 8}
@@ -139,7 +139,8 @@ func batchMatch(itemCode string, batchCode string, wl *warehouse.Location) bool 
 			"left join stock_movement sm on sm.unit_id = su.id and sm.status != 'finish' "+
 			"where (SUBSTRING(ib.code, 1, 2) >= ? and SUBSTRING(ib.code, 1, 2) <= ?) "+
 			"and SUBSTRING(ib.code, 3, 2) = ? and ss.location_id = ? and i.code = ? "+
-			"and sm.id is null;", matched[0], matched[1], y, wl.ID, itemCode).QueryRow(&total)
+			"and ss.container_id = ? "+
+			"and sm.id is null;", matched[0], matched[1], y, wl.ID, itemCode, palletID).QueryRow(&total)
 
 		if total == 0 {
 			// cek movement
@@ -157,7 +158,7 @@ func batchMatch(itemCode string, batchCode string, wl *warehouse.Location) bool 
 	return false
 }
 
-func itemMatch(itemCode string, wl *warehouse.Location) bool {
+func itemMatch(itemCode string, palletID int64, wl *warehouse.Location) bool {
 	var total float64
 	o := orm.NewOrm()
 	o.Raw("SELECT count(*) FROM stock_unit su "+
@@ -165,7 +166,8 @@ func itemMatch(itemCode string, wl *warehouse.Location) bool {
 		"inner join item i on i.id = su.item_id "+
 		"left join stock_movement sm on sm.unit_id = su.id and sm.status != 'finish' "+
 		"where i.code = ? and ss.location_id = ? "+
-		"and sm.id is null;", itemCode, wl.ID).QueryRow(&total)
+		"and ss.container_id = ? "+
+		"and sm.id is null;", itemCode, wl.ID, palletID).QueryRow(&total)
 
 	if total == 0 {
 		// cek movement
