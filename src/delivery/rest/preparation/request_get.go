@@ -61,7 +61,7 @@ func getSuggestion(p *model.Preparation) {
 
 	// loop through documents
 	for _, i := range p.Documents {
-		var withBatch, batchJoin string
+		var withBatch string
 		var qp float64
 
 		if i.Batch != nil {
@@ -69,13 +69,14 @@ func getSuggestion(p *model.Preparation) {
 		} else {
 			if i.Year != "" {
 				withBatch = fmt.Sprintf(" and SUBSTRING(ib.code, -2) = '%s' ", i.Year)
-				batchJoin = " inner join item_batch ib on ib.id = su.batch_id "
 			}
 		}
 
 		orm.NewOrm().Raw("SELECT sum(pu.quantity) as quantity FROM preparation_unit pu "+
-			"inner join stock_unit su on su.id = pu.unit_id "+batchJoin+
-			"where su.item_id = ? and preparation_id = ?"+withBatch, i.Item.ID, p.ID).QueryRow(&qp)
+			"inner join stock_unit su on su.id = pu.unit_id "+
+			"inner join item_batch ib on ib.id = su.batch_id "+
+			"where su.item_id = ? and preparation_id = ? " +
+			"group by ss.location_id, su.code order by SUBSTRING(ib.code, -2), SUBSTRING(ib.code, 2) DESC;"+withBatch, i.Item.ID, p.ID).QueryRow(&qp)
 
 		if r, e := getLocation(i.Item, i.Batch, i.Quantity-qp, i.Year); e == nil {
 			p.Pickings = append(p.Pickings, r...)
@@ -99,9 +100,10 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (
 	_, e = orm.NewOrm().Raw("SELECT max(wl.id) as location_key, max(wl.name) as location_name, sum(su.stock) as quantity FROM stock_unit su "+
 		"inner join stock_storage ss on ss.id = su.storage_id "+
 		"inner join warehouse_location wl on wl.id = ss.location_id "+
-		"inner join warehouse_area wa on wa.id = wl.warehouse_area_id inner join item_batch ib on ib.id = su.batch_id "+
+		"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+
+		"inner join item_batch ib on ib.id = su.batch_id "+
 		"where wa.type = 'storage' and su.status = 'stored' and su.is_defect = 0 and su.item_id = ? "+withBatch+
-		"group by ss.location_id order by SUBSTRING(ib.code, -2) ASC;", i.ID).QueryRows(&s)
+		"group by ss.location_id, su.code order by SUBSTRING(ib.code, -2), SUBSTRING(ib.code, 2) DESC;", i.ID).QueryRows(&s)
 
 	o := orm.NewOrm()
 	if e == nil && len(s) > 0 {
