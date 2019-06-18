@@ -84,7 +84,7 @@ func getSuggestion(p *model.Preparation) {
 }
 
 func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (r []*model.PreparationSuggested, e error) {
-	var withBatch, batchJoin string
+	var withBatch string
 	var totalQuantityChoosed float64
 
 	if ib != nil {
@@ -92,7 +92,6 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (
 	} else {
 		if year != "" {
 			withBatch = fmt.Sprintf("and SUBSTRING(ib.code, -2) = '%s' ", year)
-			batchJoin = "inner join item_batch ib on ib.id = su.batch_id "
 		}
 	}
 
@@ -100,7 +99,7 @@ func getLocation(i *model2.Item, ib *model2.ItemBatch, q float64, year string) (
 	_, e = orm.NewOrm().Raw("SELECT max(wl.id) as location_key, max(wl.name) as location_name, sum(su.stock) as quantity FROM stock_unit su "+
 		"inner join stock_storage ss on ss.id = su.storage_id "+
 		"inner join warehouse_location wl on wl.id = ss.location_id "+
-		"inner join warehouse_area wa on wa.id = wl.warehouse_area_id "+batchJoin+
+		"inner join warehouse_area wa on wa.id = wl.warehouse_area_id inner join item_batch ib on ib.id = su.batch_id "+
 		"where wa.type = 'storage' and su.status = 'stored' and su.is_defect = 0 and su.item_id = ? "+withBatch+
 		"group by ss.location_id order by SUBSTRING(ib.code, -2) ASC;", i.ID).QueryRows(&s)
 
