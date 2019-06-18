@@ -37,6 +37,7 @@ var (
 	errInvalidItemCode      = "Kode tidak ditemukan atau tidak aktif"
 	errLocationFull         = "Lokasi sudah penuh"
 	errLocationOpname       = "Sedang dilakukan stockopname"
+	errPalletLocation       = "Pallet di lokasi tidak sesuai"
 )
 
 func validBatchCode(code string) (c string, e error) {
@@ -101,6 +102,27 @@ func countLocationMoved(id int64) (total int) {
 	return
 }
 
+// checkPalletLocation cek apakah lokasi sesuai dengan pallet yang ingin dimovement
+func checkPalletLocation(receivingUnitID, locID int64) (valid bool, e error) {
+	r := new(model.ReceivingUnit)
+	ss := new(model2.StockStorage)
+
+	o := orm.NewOrm()
+	if e = o.QueryTable(r).Filter("id", receivingUnitID).Filter("is_active", 0).RelatedSel().Limit(1).One(r); e == nil {
+		if e = o.QueryTable(ss).Filter("location_id", locID).RelatedSel().Limit(1).One(ss); e == nil {
+			// lokasi sudah dipake dan palletnya sama
+			if ss.Container.ID == r.Pallet.ID {
+				valid = true
+			}
+		} else {
+			// location belum dipake bebas
+			valid = true
+		}
+	}
+
+	return
+}
+
 // countMovement hitung jumlah movement pallet ke lokasi tertentu
 func countMovement(id int64) (total int) {
 	orm.NewOrm().Raw("SELECT count(id) FROM stock_movement where destination_id = ? and is_merger = ? and is_not_full = ? and status != ?", id, 0, 0, "finish").QueryRow(&total)
@@ -121,6 +143,7 @@ func countLocationOpname(LocID int64) (total int) {
 func checkLocationOpname(LocID int64) (status bool) {
 	var ID int64
 	orm.NewOrm().Raw("SELECT id FROM stock_opname so where so.location_id = ? and so.status = ? and so.type = ?", LocID, "active", "opname").QueryRow(&ID)
+
 	if ID != int64(0) {
 		status = true
 	}

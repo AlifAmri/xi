@@ -15,6 +15,7 @@ import (
 	model3 "git.qasico.com/gudang/api/src/stock/model"
 	"git.qasico.com/gudang/api/src/user"
 	"git.qasico.com/gudang/api/src/warehouse"
+	"fmt"
 )
 
 type finishRequest struct {
@@ -41,6 +42,7 @@ func (cr *finishRequest) Validate() *validation.Output {
 		} else {
 			movementItem := countMovement(cr.Location.ID)
 			stockItem := countLocationMoved(cr.Location.ID)
+			palletValid, _ := checkPalletLocation(cr.ID, cr.Location.ID)
 			opname := checkLocationOpname(cr.Location.ID)
 			// cek dengan stock di gudang dan movement
 			if (stockItem + movementItem) >= cr.Location.StorageCapacity {
@@ -50,6 +52,13 @@ func (cr *finishRequest) Validate() *validation.Output {
 			if opname {
 				o.Failure("location_id.invalid", errLocationOpname)
 			}
+
+			if !palletValid {
+				o.Failure("location_id.invalid", errPalletLocation)
+			}
+
+			fmt.Println(palletValid)
+
 		}
 	}
 
