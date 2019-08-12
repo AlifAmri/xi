@@ -65,17 +65,18 @@ func getSuggestion(p *model.Preparation) {
 		var qp float64
 
 		if i.Batch != nil {
-			withBatch = fmt.Sprintf(" and su.batch_id = %d", i.Batch.ID)
+			withBatch = fmt.Sprintf("and su.batch_id = %d", i.Batch.ID)
 		} else {
 			if i.Year != "" {
-				withBatch = fmt.Sprintf(" and SUBSTRING(ib.code, -2) = '%s' ", i.Year)
+				withBatch = fmt.Sprintf("and SUBSTRING(ib.code, -2) = '%s' ", i.Year)
 			}
 		}
 
 		orm.NewOrm().Raw("SELECT sum(pu.quantity) as quantity FROM preparation_unit pu "+
 			"inner join stock_unit su on su.id = pu.unit_id "+
 			"inner join item_batch ib on ib.id = su.batch_id "+
-			"where su.item_id = ? and preparation_id = ?;"+withBatch, i.Item.ID, p.ID).QueryRow(&qp)
+			"where su.item_id = ? and preparation_id = ? "+withBatch+
+			";", i.Item.ID, p.ID).QueryRow(&qp)
 
 		if r, e := getLocation(i.Item, i.Batch, i.Quantity-qp, i.Year); e == nil {
 			p.Pickings = append(p.Pickings, r...)
